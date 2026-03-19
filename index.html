@@ -3,107 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Studiant Premium</title>
+    <title>AI Quiz Generator</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-
-    <div id="authScreen" class="overlay">
-        <div class="card auth-card">
-            <h1>🎓 AI Studiant</h1>
-            <p>Accès Plateforme</p>
-            <input type="text" id="authInput" placeholder="Code (ADMIN ou USER1)">
-            <button onclick="handleAuth()" class="btn-main">Se connecter</button>
-        </div>
-    </div>
-
-    <div id="mainApp" style="display:none;">
-        <header>
-            <div class="user-box">
-                <div class="avatar" id="uAvatar">?</div>
-                <div>
-                    <b id="uName">Chargement...</b><br>
-                    <span id="uTokens">0</span> <small>tokens</small>
-                </div>
-            </div>
-            <div class="header-btns">
-                <button id="adminBtn" class="btn-admin" onclick="showAdmin()" style="display:none;">
-                    <i class="fas fa-crown"></i> <span id="badge" class="badge">0</span>
-                </button>
-                <button onclick="location.reload()" class="btn-off"><i class="fas fa-power-off"></i></button>
-            </div>
-        </header>
-
-        <div class="status-bar">
-            <div class="progress-container">
-                <div id="tokenBar" class="progress-bar"></div>
-            </div>
-            <div class="flex-between">
-                <small id="tokenLabel">Stock IA: 100%</small>
-                <small>Essais : <b id="uFree">0/3</b></small>
-            </div>
+    <div class="container">
+        <h1>🎓 AI Quiz Generator</h1>
+        
+        <div id="login-section" class="card">
+            <h3>Configuration</h3>
+            <input type="password" id="api-key" placeholder="Insérez votre API Key Gemini ici...">
+            <button onclick="saveConfig()">Accéder à l'application</button>
         </div>
 
-        <div id="userContent">
-            <div class="action-row">
-                <input type="text" id="searchBar" placeholder="Rechercher une matière...">
-                <button onclick="showShop()" class="btn-gold"><i class="fas fa-shopping-cart"></i> Acheter</button>
-            </div>
-            <div id="subjectList" class="subjects-grid"></div>
-        </div>
-    </div>
+        <div id="app-section" class="card hidden">
+            <textarea id="input-text" placeholder="Collez le contenu de votre document ici..."></textarea>
+            <button id="generate-btn" onclick="processContent()">Générer le Résumé & Quiz</button>
 
-    <div id="analysisModal" class="overlay-full" style="display:none;">
-        <div class="modal-window">
-            <div class="modal-header">
-                <h2 id="activeSubject">Matière</h2>
-                <button onclick="closeModal('analysisModal')" class="btn-close">&times;</button>
-            </div>
+            <div id="loader" class="hidden">Analyse en cours par Gemini...</div>
 
-            <div id="stepUpload">
-                <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <p>Cliquez pour uploader un cours</p>
-                    <input type="file" id="fileInput" hidden onchange="onFileSelected()">
-                </div>
-                <div id="fileStatus" class="progress-text"></div>
-                <button id="analyzeBtn" class="btn-main" style="display:none;" onclick="runAnalysis()">Analyser avec Gemini</button>
-            </div>
+            <div id="results">
+                <section id="summary-area">
+                    <h2>📝 Résumé Long</h2>
+                    <div id="summary-content"></div>
+                </section>
 
-            <div id="stepResult" style="display:none;">
-                <div class="res-box">
-                    <h3><i class="fas fa-file-alt"></i> Résumé de l'IA</h3>
-                    <div id="resText" class="ai-content"></div>
-                </div>
-                <div class="res-box quiz">
-                    <h3><i class="fas fa-question-circle"></i> Quiz d'entraînement</h3>
-                    <div id="quizContainer" class="ai-content"></div>
-                </div>
+                <section id="quiz-area">
+                    <h2>🧠 Quiz d'auto-évaluation</h2>
+                    <div id="quiz-content"></div>
+                </section>
             </div>
         </div>
     </div>
-
-    <div id="shopModal" class="overlay" style="display:none;">
-        <div class="card">
-            <h3>Boutique Tokens</h3>
-            <div class="pack" onclick="selectPack(500000, 1000, this)">500k Tokens - 1000 Ar</div>
-            <div class="pack" onclick="selectPack(1000000, 2000, this)">1M Tokens - 2000 Ar</div>
-            <select id="payMethod"><option>MVola</option><option>Orange Money</option></select>
-            <input type="text" id="payRef" placeholder="Référence Transaction">
-            <button id="confirmPay" class="btn-main" disabled onclick="sendPurchase()">Envoyer</button>
-            <button onclick="closeModal('shopModal')" class="btn-text">Annuler</button>
-        </div>
-    </div>
-
-    <div id="adminModal" class="overlay" style="display:none;">
-        <div class="card admin-card">
-            <h3>Gestion des Commandes</h3>
-            <div id="reqList"></div>
-            <button onclick="closeModal('adminModal')" class="btn-main">Fermer</button>
-        </div>
-    </div>
-
     <script src="script.js"></script>
 </body>
 </html>
