@@ -1,27 +1,100 @@
-<div id="shopOverlay" class="modal-overlay" style="display:none;">
-    <div class="shop-card">
-        <h3>💰 Acheter des Tokens</h3>
-        
-        <div class="package" onclick="selectPack(500000, 1000)">
-            <span>500 000 Tokens</span> <b class="price">1 000 Ar</b>
-        </div>
-        <div class="package" onclick="selectPack(1000000, 2000)">
-            <span>1 000 000 Tokens</span> <b class="price">2 000 Ar</b>
-        </div>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Studiant Pro - Madagascar</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
 
-        <div class="payment-methods">
-            <select id="paymentProvider">
-                <option value="MVola">MVola</option>
-                <option value="Orange Money">Orange Money</option>
-                <option value="Airtel Money">Airtel Money</option>
-                <option value="Crypto">Cryptomonnaie (USDT)</option>
-            </select>
-            <input type="text" id="transactionID" placeholder="Réf. Transaction ou ID">
-        </div>
-
-        <div class="shop-actions">
-            <button class="btn-cancel" onclick="closeShop()">Annuler</button>
-            <button class="btn-confirm" id="sendRequestBtn" disabled onclick="sendPurchaseRequest()">Envoyer la requête</button>
+    <div id="authScreen" class="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-avatar">🎓</div>
+            <h2>AI Studiant</h2>
+            <p>Entrez votre code (ex: ADMIN ou USER1)</p>
+            <input type="text" id="authInput" placeholder="Code d'accès">
+            <button onclick="handleAuth()" class="login-btn">Se connecter</button>
         </div>
     </div>
-</div>
+
+    <div id="mainApp" class="app-container" style="display:none;">
+        <header class="main-header">
+            <div class="user-profile">
+                <div class="avatar-circle" id="userAvatar">U</div>
+                <div class="user-info">
+                    <span id="userName" class="name-text">Utilisateur</span>
+                    <div class="token-status">
+                        <span id="userTokenCount">0</span> tokens
+                        <div class="token-bar-bg"><div id="tokenBar"></div></div>
+                        <small id="tokenPercent">100% disponible</small>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="goToAdmin" class="icon-btn-admin" style="display:none;">
+                    <i class="fas fa-user-shield"></i>
+                    <span id="notifBadge" class="badge" style="display:none;">!</span>
+                </button>
+                <button onclick="location.reload()" class="icon-btn-logout"><i class="fas fa-power-off"></i></button>
+            </div>
+        </header>
+
+        <div class="action-bar">
+            <span>Gratuit : <b id="dailyFree">0/3</b></span>
+            <button class="buy-tokens-btn" onclick="showShop()"><i class="fas fa-shopping-cart"></i> Acheter Tokens</button>
+        </div>
+
+        <main id="subject-list" class="grid-subjects"></main>
+    </div>
+
+    <div id="shopOverlay" class="modal-overlay" style="display:none;">
+        <div class="shop-card">
+            <h3>💰 Recharger mon compte</h3>
+            <div class="package" onclick="selectPack(500000, 1000)">
+                <span>500 000 Tokens</span> <b class="price">1 000 Ar</b>
+            </div>
+            <div class="package" onclick="selectPack(1000000, 2000)">
+                <span>1 000 000 Tokens</span> <b class="price">2 000 Ar</b>
+            </div>
+            <div class="payment-methods">
+                <select id="paymentProvider">
+                    <option value="MVola">MVola</option>
+                    <option value="Orange Money">Orange Money</option>
+                    <option value="Airtel Money">Airtel Money</option>
+                    <option value="Crypto">Crypto (USDT/BTC)</option>
+                </select>
+                <input type="text" id="transactionID" placeholder="Réf. Transaction (ex: 128394...)">
+            </div>
+            <div class="shop-actions">
+                <button class="btn-cancel" onclick="closeShop()">Annuler</button>
+                <button class="btn-confirm" id="sendRequestBtn" disabled onclick="sendPurchaseRequest()">Envoyer la requête</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminScreen" class="admin-modal" style="display:none;">
+        <div class="admin-content">
+            <div class="admin-header">
+                <h2>Panel Gestionnaire</h2>
+                <button onclick="hideAdmin()" class="close-admin">×</button>
+            </div>
+            <div class="admin-cards">
+                <div class="a-card">
+                    <small>Stock Global IA</small>
+                    <h3 id="adminStockDisplay">1M</h3>
+                </div>
+                <div class="a-card">
+                    <small>Ventes Totales</small>
+                    <h3 id="adminSalesDisplay">0 Ar</h3>
+                </div>
+            </div>
+            <h4>Ventes à Valider</h4>
+            <div id="adminRequestList" class="request-container"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
