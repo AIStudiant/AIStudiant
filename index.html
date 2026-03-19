@@ -3,83 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Studiant - Expert Analyse</title>
+    <title>AI Studiant PRO</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div id="mainApp" class="app-container">
+
+    <div id="authScreen" class="full-screen">
+        <div class="auth-box">
+            <div class="avatar-lg">👨‍🎓</div>
+            <h2>AI Studiant</h2>
+            <p>Entrez votre code d'activation ou identifiant</p>
+            <input type="text" id="authInput" placeholder="Code : ADMIN ou USER1">
+            <button onclick="handleAuth()" class="main-btn">Se connecter</button>
+        </div>
+    </div>
+
+    <div id="mainApp" class="app-container" style="display:none;">
         <header>
             <div class="profile">
-                <div class="avatar">👨‍🎓</div>
-                <span>Espace Éducatif</span>
+                <div class="avatar" id="userAvatar">U</div>
+                <div>
+                    <div id="userName">Utilisateur</div>
+                    <div class="token-badge">
+                        <i class="fas fa-coins"></i> <span id="userTokens">0</span> tokens
+                    </div>
+                </div>
             </div>
-            <button class="add-btn" id="addSubjectBtn"><i class="fas fa-plus"></i></button>
+            <button class="admin-only-btn" id="goToAdmin" style="display:none;">Admin</button>
+            <button class="logout-btn" onclick="location.reload()"><i class="fas fa-sign-out-alt"></i></button>
         </header>
 
-        <div class="search-bar">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Rechercher une matière...">
+        <div class="stats-mini">
+            <span>Gratuit : <b id="dailyFree">0/3</b></span>
+            <button class="buy-btn" onclick="showShop()"><i class="fas fa-shopping-cart"></i> Acheter</button>
         </div>
 
         <main id="subject-list"></main>
+
+        <div id="shopSection" class="shop-overlay" style="display:none;">
+            <div class="shop-content">
+                <h3>Boutique de Tokens</h3>
+                <div class="plan" onclick="simulatePurchase(5000, 1)">
+                    <span>5 000 Tokens</span>
+                    <button>1 USD</button>
+                </div>
+                <div class="plan" onclick="simulatePurchase(50000, 5)">
+                    <span>50 000 Tokens</span>
+                    <button>5 USD</button>
+                </div>
+                <button onclick="hideShop()" class="close-shop">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminScreen" class="full-screen" style="display:none; background: #05070a;">
+        <div class="admin-container">
+            <header>
+                <h2>Panel Administrateur</h2>
+                <button onclick="hideAdmin()" class="close-btn">Quitter</button>
+            </header>
+            
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <p>Tokens Gratuits Distribués</p>
+                    <h3 id="adminFreeTotal">0</h3>
+                </div>
+                <div class="stat-card">
+                    <p>Tokens Vendus (Premium)</p>
+                    <h3 id="adminPaidTotal">0</h3>
+                </div>
+            </div>
+
+            <h4>Utilisateurs Actifs</h4>
+            <div id="adminUserList" class="user-list"></div>
+        </div>
     </div>
 
     <div id="analysisModal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="closeModal">&times;</span>
-            <h2 id="modalTitle">Matière</h2>
-            
-            <div class="modal-actions">
-                <label class="upload-box" id="dropZone" for="modalFileInput">
-                    <i class="fas fa-file-pdf"></i>
-                    <p id="uploadStatus">Uploader PDF / Word</p>
-                    <small style="display:block; margin-top:5px; color:#64748b;">Max : 500 Mo</small>
-                    <input type="file" id="modalFileInput" style="display:none" accept=".pdf,.doc,.docx,.txt">
-                </label>
-
-                <div id="progressContainer" style="display: none; margin-bottom: 20px; text-align: left;">
-                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
-                        <span id="progressLabel">Analyse IA...</span>
-                        <span id="progressPercent">0%</span>
-                    </div>
-                    <div class="progress-bg">
-                        <div id="progressBar" class="progress-fill"></div>
-                    </div>
-                    <p id="timeLeft" style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Temps estimé : --</p>
-                </div>
-
-                <button id="modalAnalyzeBtn" class="main-btn">
-                    <i class="fas fa-brain"></i> Analyser et Créer Quiz
-                </button>
-
-                <button id="viewQuizBtn" class="main-btn btn-success" style="display:none;">
-                    <i class="fas fa-eye"></i> Afficher le Quiz
-                </button>
-            </div>
         </div>
-    </div>
-
-    <div id="quizScreen" class="quiz-container" style="display: none;">
-        <div class="quiz-header">
-            <button id="closeQuiz" class="icon-btn"><i class="fas fa-times"></i></button>
-            <div class="progress-bar-mini"><div id="quizStatusBar"></div></div>
-            <span id="questionCounter" style="color:white; font-size: 14px;">1/5</span>
-        </div>
-
-        <div id="quizBody" class="question-box">
-            <h2 id="questionText">Chargement...</h2>
-            <div id="optionsList" class="options-grid"></div>
-        </div>
-
-        <div id="scoreScreen" style="display: none; text-align: center; margin-top: 50px;">
-            <div class="result-circle">
-                <h1 id="finalScore" style="font-size: 3rem;">0/5</h1>
-                <p>Score Final</p>
-            </div>
-            <button onclick="location.reload()" class="main-btn btn-success">Continuer</button>
-        </div>
-    </div>
 
     <script src="script.js"></script>
 </body>
