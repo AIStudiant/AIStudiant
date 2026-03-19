@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AI Studiant - Expert Analyse</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -14,29 +14,35 @@
                 <div class="avatar">👨‍🎓</div>
                 <span>Espace Éducatif</span>
             </div>
-            <button class="add-btn">+</button>
+            <button class="add-btn" id="addSubjectBtn">+</button>
         </header>
 
         <div class="search-bar">
-            <input type="text" placeholder="Rechercher une matière...">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Rechercher une matière...">
         </div>
 
         <main id="subject-list">
-            <div class="card"><span>📐 Mathématiques</span><i class="fas fa-trash"></i></div>
-            <div class="card"><span>⚛️ Physique</span><i class="fas fa-trash"></i></div>
-        </main>
+            </main>
+    </div>
 
-        <div class="actions">
-            <label class="upload-area">
-                <input type="file" id="fileInput" hidden>
-                <i class="fas fa-cloud-upload-alt"></i>
-                <span>Uploader un fichier</span>
-            </label>
-            <button id="analyzeBtn" class="main-btn">
-                <i class="fas fa-brain"></i> Analyser les données
-            </button>
+    <div id="analysisModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Matière</h2>
+            <div class="modal-actions">
+                <label class="upload-box">
+                    <input type="file" id="modalFileInput" hidden>
+                    <i class="fas fa-file-pdf"></i>
+                    <p>Uploader PDF / Word</p>
+                </label>
+                <button id="modalAnalyzeBtn" class="main-btn">
+                    <i class="fas fa-brain"></i> Analyser et Créer Quiz
+                </button>
+            </div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
