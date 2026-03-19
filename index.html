@@ -2,113 +2,41 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Expert Analyse 🎓</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Studiant - Expert Analyse</title>
     <link rel="stylesheet" href="style.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 </head>
-
 <body>
-<div class="phone-container">
-<div class="phone-screen">
+    <div class="app-container">
+        <header>
+            <div class="profile">
+                <div class="avatar">👨‍🎓</div>
+                <span>Espace Éducatif</span>
+            </div>
+            <button class="add-btn">+</button>
+        </header>
 
-<header>
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h2>Expert Analyse 🎓</h2>
-
-        <button onclick="askNewKey()" class="btn-icon">
-            <i class="fas fa-key"></i>
-        </button>
-    </div>
-
-    <div id="status-ia" class="status-badge">OpenAI prêt</div>
-</header>
-
-<!-- UPLOAD -->
-<div class="upload-section">
-
-    <label for="file-upload" class="custom-file-upload">
-        <i class="fas fa-cloud-upload-alt"></i>
-        <span id="label-text">Charger PDF ou Word</span>
-    </label>
-
-    <input id="file-upload" type="file" accept=".pdf,.docx" onchange="handleFileUpload(event)"/>
-
-    <div id="upload-status-container" class="hidden">
-        <div class="status-info">
-            <span id="file-info">Traitement...</span>
-            <span id="upload-perc">0%</span>
-        </div>
-        <div class="progress-bar">
-            <div id="upload-fill"></div>
-        </div>
-    </div>
-
-    <button id="btn-ai" onclick="processCourse()" disabled class="btn-blue">
-        En attente du fichier...
-    </button>
-
-    <div id="ia-detail-container" class="hidden">
-        <div class="status-info">
-            <span id="ia-status-label">Analyse OpenAI...</span>
-            <span id="ia-perc">0%</span>
+        <div class="search-bar">
+            <input type="text" placeholder="Rechercher une matière...">
         </div>
 
-        <div class="progress-bar">
-            <div id="ia-fill"></div>
+        <main id="subject-list">
+            <div class="card"><span>📐 Mathématiques</span><i class="fas fa-trash"></i></div>
+            <div class="card"><span>⚛️ Physique</span><i class="fas fa-trash"></i></div>
+        </main>
+
+        <div class="actions">
+            <label class="upload-area">
+                <input type="file" id="fileInput" hidden>
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Uploader un fichier</span>
+            </label>
+            <button id="analyzeBtn" class="main-btn">
+                <i class="fas fa-brain"></i> Analyser les données
+            </button>
         </div>
-
-        <p id="timer-text"></p>
     </div>
-
-    <button id="btn-result" onclick="showResults()" class="hidden btn-green">
-        ✅ Voir Résumé & Quiz
-    </button>
-
-</div>
-
-<!-- RESULTATS -->
-<div id="results-container" class="hidden">
-
-    <div style="display:flex;gap:5px;margin-bottom:15px;">
-        <button id="tab-sum" onclick="switchTab('sum')" class="btn-blue">📖 Résumé</button>
-        <button id="tab-quiz" onclick="switchTab('quiz')" class="btn-icon">❓ Quiz</button>
-    </div>
-
-    <div id="summary-content">
-        <div id="summary-result"></div>
-    </div>
-
-    <div id="quiz-content" class="hidden">
-        <div id="quiz-result"></div>
-    </div>
-
-    <!-- CHAT AVEC LE PDF -->
-    <div style="margin-top:20px;">
-
-        <input id="chat-input"
-               placeholder="💬 Pose une question sur le cours..."
-               style="width:100%;padding:12px;border-radius:10px;border:none;">
-
-        <button onclick="askQuestion()" class="btn-blue" style="margin-top:10px;">
-            Poser la question
-        </button>
-
-        <div id="chat-output" style="margin-top:15px;"></div>
-
-    </div>
-
-</div>
-
-</div>
-</div>
-
-<script src="script.js"></script>
-
+    <script src="script.js"></script>
 </body>
 </html>
