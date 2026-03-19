@@ -1,88 +1,18 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Studiant PRO</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-
-    <div id="authScreen" class="full-screen">
-        <div class="auth-box">
-            <div class="avatar-lg">👨‍🎓</div>
-            <h2>AI Studiant</h2>
-            <p>Entrez votre code d'activation ou identifiant</p>
-            <input type="text" id="authInput" placeholder="Code : ADMIN ou USER1">
-            <button onclick="handleAuth()" class="main-btn">Se connecter</button>
+<div class="profile">
+    <div class="avatar" id="userAvatar">A</div>
+    <div>
+        <div id="userName">Administrateur</div>
+        <div class="token-status-container">
+            <div class="token-info">
+                <i class="fas fa-microchip"></i> 
+                <span id="adminTotalTokens">1 000 000</span> / 1M tokens
+            </div>
+            <div class="progress-mini">
+                <div id="tokenBar" style="width: 100%;"></div>
+            </div>
+            <span id="tokenPercent" style="font-size: 10px; color: #10b981;">100% disponible</span>
         </div>
     </div>
+</div>
 
-    <div id="mainApp" class="app-container" style="display:none;">
-        <header>
-            <div class="profile">
-                <div class="avatar" id="userAvatar">U</div>
-                <div>
-                    <div id="userName">Utilisateur</div>
-                    <div class="token-badge">
-                        <i class="fas fa-coins"></i> <span id="userTokens">0</span> tokens
-                    </div>
-                </div>
-            </div>
-            <button class="admin-only-btn" id="goToAdmin" style="display:none;">Admin</button>
-            <button class="logout-btn" onclick="location.reload()"><i class="fas fa-sign-out-alt"></i></button>
-        </header>
-
-        <div class="stats-mini">
-            <span>Gratuit : <b id="dailyFree">0/3</b></span>
-            <button class="buy-btn" onclick="showShop()"><i class="fas fa-shopping-cart"></i> Acheter</button>
-        </div>
-
-        <main id="subject-list"></main>
-
-        <div id="shopSection" class="shop-overlay" style="display:none;">
-            <div class="shop-content">
-                <h3>Boutique de Tokens</h3>
-                <div class="plan" onclick="simulatePurchase(5000, 1)">
-                    <span>5 000 Tokens</span>
-                    <button>1 USD</button>
-                </div>
-                <div class="plan" onclick="simulatePurchase(50000, 5)">
-                    <span>50 000 Tokens</span>
-                    <button>5 USD</button>
-                </div>
-                <button onclick="hideShop()" class="close-shop">Fermer</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="adminScreen" class="full-screen" style="display:none; background: #05070a;">
-        <div class="admin-container">
-            <header>
-                <h2>Panel Administrateur</h2>
-                <button onclick="hideAdmin()" class="close-btn">Quitter</button>
-            </header>
-            
-            <div class="admin-stats">
-                <div class="stat-card">
-                    <p>Tokens Gratuits Distribués</p>
-                    <h3 id="adminFreeTotal">0</h3>
-                </div>
-                <div class="stat-card">
-                    <p>Tokens Vendus (Premium)</p>
-                    <h3 id="adminPaidTotal">0</h3>
-                </div>
-            </div>
-
-            <h4>Utilisateurs Actifs</h4>
-            <div id="adminUserList" class="user-list"></div>
-        </div>
-    </div>
-
-    <div id="analysisModal" class="modal">
-        </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+<button class="admin-btn-special" id="goToAdmin">🔧 Panel Admin</button>
