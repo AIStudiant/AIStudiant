@@ -1,4 +1,5 @@
-let subjects = [
+// On récupère les données sauvegardées ou on met une liste par défaut
+let subjects = JSON.parse(localStorage.getItem('mySubjects')) || [
     { name: "Mathématiques", icon: "📐" },
     { name: "Physique", icon: "⚛️" },
     { name: "Science", icon: "🧪" }
@@ -7,7 +8,12 @@ let subjects = [
 const listElement = document.getElementById('subject-list');
 const modal = document.getElementById('analysisModal');
 
-// --- 1. FONCTION D'AFFICHAGE ---
+// Sauvegarder dans le navigateur
+function save() {
+    localStorage.setItem('mySubjects', JSON.stringify(subjects));
+    render();
+}
+
 function render(filter = "") {
     listElement.innerHTML = "";
     const filtered = subjects.filter(s => s.name.toLowerCase().includes(filter.toLowerCase()));
@@ -19,50 +25,41 @@ function render(filter = "") {
             <div style="flex:1" onclick="openAnalysis('${sub.name}')">
                 <span>${sub.icon} ${sub.name}</span>
             </div>
-            <i class="fas fa-trash" onclick="deleteSub(${index})"></i>
+            <i class="fas fa-trash delete-icon" onclick="deleteSub(event, ${index})"></i>
         `;
         listElement.appendChild(card);
     });
 }
 
-// --- 2. GESTION DE LA RECHERCHE ---
-document.getElementById('searchInput').addEventListener('input', (e) => {
-    render(e.target.value);
-});
-
-// --- 3. AJOUT D'UNE MATIÈRE ---
-document.getElementById('addSubjectBtn').addEventListener('click', () => {
-    const name = prompt("Nom de la nouvelle matière ?");
+// Fonction pour AJOUTER
+document.getElementById('addSubjectBtn').onclick = () => {
+    const name = prompt("Nom de la matière ?");
     if (name) {
         subjects.push({ name: name, icon: "📚" });
-        render();
+        save();
     }
-});
+};
 
-// --- 4. OUVERTURE DE L'ANALYSE (MODAL) ---
+// Fonction pour RECHERCHER
+document.getElementById('searchInput').oninput = (e) => {
+    render(e.target.value);
+};
+
+// Gérer la fenêtre d'analyse
 function openAnalysis(name) {
     document.getElementById('modalTitle').innerText = name;
     modal.style.display = "block";
 }
 
-// Fermer la modal
 document.querySelector('.close').onclick = () => modal.style.display = "none";
-window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; }
 
-// --- 5. ANALYSE ET QUIZ ---
-document.getElementById('modalAnalyzeBtn').onclick = function() {
-    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyse IA en cours...';
-    setTimeout(() => {
-        alert("Analyse réussie ! Quiz généré pour " + document.getElementById('modalTitle').innerText);
-        this.innerHTML = '<i class="fas fa-brain"></i> Analyser et Créer Quiz';
-        modal.style.display = "none";
-    }, 2000);
-};
-
-function deleteSub(index) {
-    subjects.splice(index, 1);
-    render();
+function deleteSub(event, index) {
+    event.stopPropagation(); // Empêche d'ouvrir la modal en supprimant
+    if(confirm("Supprimer cette matière ?")) {
+        subjects.splice(index, 1);
+        save();
+    }
 }
 
-// Lancement initial
+// Lancement au démarrage
 render();
