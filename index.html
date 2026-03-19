@@ -1,18 +1,78 @@
-<div class="profile">
-    <div class="avatar" id="userAvatar">A</div>
-    <div>
-        <div id="userName">Administrateur</div>
-        <div class="token-status-container">
-            <div class="token-info">
-                <i class="fas fa-microchip"></i> 
-                <span id="adminTotalTokens">1 000 000</span> / 1M tokens
-            </div>
-            <div class="progress-mini">
-                <div id="tokenBar" style="width: 100%;"></div>
-            </div>
-            <span id="tokenPercent" style="font-size: 10px; color: #10b981;">100% disponible</span>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Studiant - Expert Analyse</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="authScreen" class="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-avatar">🎓</div>
+            <h2>Bienvenue</h2>
+            <p>Connectez-vous pour continuer</p>
+            <input type="text" id="authInput" placeholder="Code : ADMIN ou USER1">
+            <button onclick="handleAuth()" class="login-btn">Entrer dans l'Espace</button>
         </div>
     </div>
-</div>
 
-<button class="admin-btn-special" id="goToAdmin">🔧 Panel Admin</button>
+    <div id="mainApp" class="app-container" style="display:none;">
+        <header class="main-header">
+            <div class="user-profile">
+                <div class="avatar-circle" id="userAvatar">A</div>
+                <div class="user-info">
+                    <span id="userName" class="name-text">Chargement...</span>
+                    <div class="token-status">
+                        <span id="adminTotalTokens">1 000 000</span> / 1M tokens
+                        <div class="token-bar-bg"><div id="tokenBar"></div></div>
+                        <small id="tokenPercent">100% disponible</small>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="goToAdmin" class="icon-btn-admin" style="display:none;"><i class="fas fa-tools"></i></button>
+                <button onclick="location.reload()" class="icon-btn-logout"><i class="fas fa-power-off"></i></button>
+            </div>
+        </header>
+
+        <div class="action-bar">
+            <span>Gratuit : <b id="dailyFree">0/3</b></span>
+            <button class="buy-tokens-btn" onclick="showShop()"><i class="fas fa-shopping-cart"></i> Acheter</button>
+        </div>
+
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Rechercher une matière...">
+            <button class="add-subject" id="addSubjectBtn"><i class="fas fa-plus"></i></button>
+        </div>
+
+        <main id="subject-list" class="grid-subjects"></main>
+    </div>
+
+    <div id="adminScreen" class="admin-modal" style="display:none;">
+        <div class="admin-content">
+            <div class="admin-header">
+                <h2>Tableau de Bord Admin</h2>
+                <button onclick="hideAdmin()" class="close-admin">×</button>
+            </div>
+            <div class="admin-cards">
+                <div class="a-card">
+                    <small>Gratuits Distribués</small>
+                    <h3 id="adminFreeTotal">0</h3>
+                </div>
+                <div class="a-card">
+                    <small>Tokens Vendus</small>
+                    <h3 id="adminPaidTotal">0</h3>
+                </div>
+            </div>
+            <h4>Liste des Utilisateurs</h4>
+            <div id="adminUserList" class="user-table"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
