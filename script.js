@@ -1,141 +1,175 @@
-const GEMINI_API_KEY = "TON_API_KEY_ICI"; // ⚠️ À REMPLACER
+const GEMINI_API_KEY = "AIzaSyAD4rQPXvIZr4ypzMOT43rXs1zqXRbrpVw"; // Obtenir sur aistudio.google.com
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
 let db = JSON.parse(localStorage.getItem('studDB')) || {
-    stockIA: 1000000, sales: 0,
+    stockIA: 1000000,
+    sales: 0,
     users: [
         { id: "ADMIN", name: "Administrateur", tokens: 0, role: "admin", free: 0 },
         { id: "USER1", name: "Jean Dupont", tokens: 6000, role: "user", free: 0 }
     ],
     requests: [],
-    subjects: ["Mathématiques", "Physique", "SVT", "Philosophie"]
+    subjects: ["Mathématiques", "Physique", "SVT", "Histoire"]
 };
 
-let user = null;
+let currentUser = null;
+let selectedPack = null;
+let fileData = { base64: null, mime: null };
 
-// --- FONCTIONS DE CONNEXION & UI ---
+function save() { localStorage.setItem('studDB', JSON.stringify(db)); }
+
+// AUTHENTIFICATION
 function handleAuth() {
     const code = document.getElementById('authInput').value.toUpperCase();
-    user = db.users.find(u => u.id === code);
-    if(user) {
+    currentUser = db.users.find(u => u.id === code);
+    if (currentUser) {
         document.getElementById('authScreen').style.display = "none";
         document.getElementById('mainApp').style.display = "block";
         refreshUI();
-    } else alert("Code erroné !");
+    } else { alert("Code invalide"); }
 }
 
 function refreshUI() {
-    document.getElementById('uTokens').innerText = (user.role === 'admin' ? db.stockIA : user.tokens).toLocaleString();
-    if(user.role !== 'admin') document.getElementById('uFree').innerText = user.free + "/3";
+    // Mise à jour Tokens
+    const tokenDisplay = currentUser.role === 'admin' ? db.stockIA : currentUser.tokens;
+    document.getElementById('uTokens').innerText = tokenDisplay.toLocaleString();
+    document.getElementById('uName').innerText = currentUser.name;
+    document.getElementById('uAvatar').innerText = currentUser.name[0];
+    
+    // Barre de Stock IA
+    const p = (db.stockIA / 1000000) * 100;
+    document.getElementById('tokenBar').style.width = p + "%";
+    document.getElementById('tokenLabel').innerText = `Stock IA: ${p.toFixed(1)}%`;
+
+    // Mode Admin vs User
+    if (currentUser.role === 'admin') {
+        document.getElementById('adminBtn').style.display = "block";
+        document.getElementById('userActionBar').style.display = "none";
+        document.getElementById('badge').innerText = db.requests.length;
+        document.getElementById('badge').style.display = db.requests.length > 0 ? "block" : "none";
+    } else {
+        document.getElementById('adminBtn').style.display = "none";
+        document.getElementById('userActionBar').style.display = "block";
+        document.getElementById('uFree').innerText = currentUser.free + "/3";
+    }
     renderSubjects();
 }
 
 function renderSubjects() {
     const list = document.getElementById('subjectList');
-    list.innerHTML = db.subjects.map(s => `<div class="subject-card" onclick="openAnalysis('${s}')">📚<br>${s}</div>`).join('');
+    list.innerHTML = db.subjects.map(s => `
+        <div class="subject-card" onclick="openAnalysis('${s}')">📚<br><b>${s}</b></div>
+    `).join('');
 }
 
-// --- LOGIQUE GEMINI & ANALYSE ---
-
-let selectedFileBase64 = null;
-let selectedFileType = null;
-
-function openAnalysis(s) {
-    document.getElementById('activeSubject').innerText = s;
-    document.getElementById('analysisModal').style.display = "flex";
-    resetAnalysisUI();
+// GESTION BOUTIQUE
+function selectPack(t, p, id) {
+    selectedPack = { t, p };
+    document.querySelectorAll('.pack').forEach(e => e.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById('sendBtn').disabled = false;
 }
 
-function resetAnalysisUI() {
-    document.getElementById('fileStatus').innerHTML = "";
-    document.getElementById('analyzeBtn').style.display = "none";
-    document.getElementById('analysisResult').style.display = "none";
+function sendPurchase() {
+    const ref = document.getElementById('refId').value;
+    if (!ref) return alert("Référence obligatoire");
+    
+    db.requests.push({ id: Date.now(), uid: currentUser.id, uname: currentUser.name, t: selectedPack.t, p: selectedPack.p, ref: ref });
+    save();
+    
+    const btn = document.getElementById('sendBtn');
+    btn.innerText = "Transmis !";
+    setTimeout(() => { closeModal('shopModal'); refreshUI(); }, 1500);
 }
 
+// ANALYSE GEMINI AVEC PROGRESSION %
 async function onFileSelected() {
     const file = document.getElementById('fileInput').files[0];
-    if (!file) return;
-
-    // Simulation Upload %
     const status = document.getElementById('fileStatus');
-    status.innerHTML = "Upload: 0%";
     
-    for (let i = 0; i <= 100; i += 20) {
-        status.innerHTML = `Upload: ${i}%`;
-        await new Promise(r => setTimeout(r, 100));
+    // Simulation Upload %
+    for (let i = 0; i <= 100; i += 25) {
+        status.innerText = `Upload: ${i}%`;
+        await new Promise(r => setTimeout(r, 150));
     }
 
-    // Conversion en Base64 pour Gemini
     const reader = new FileReader();
     reader.onload = (e) => {
-        selectedFileBase64 = e.target.result.split(',')[1];
-        selectedFileType = file.type;
-        status.innerHTML = `<b style="color:#238636">✓ ${file.name} chargé (100%)</b>`;
+        fileData.base64 = e.target.result.split(',')[1];
+        fileData.mime = file.type;
+        status.innerHTML = `<span style="color:var(--green)">✓ ${file.name} (100%)</span>`;
         document.getElementById('analyzeBtn').style.display = "block";
     };
     reader.readAsDataURL(file);
 }
 
 async function runAnalysis() {
-    // Vérification tokens
-    if (user.free >= 3 && user.tokens < 5000) return alert("Tokens insuffisants !");
+    if (currentUser.free >= 3 && currentUser.tokens < 5000) return alert("Tokens insuffisants");
 
-    const btn = document.getElementById('analyzeBtn');
     const status = document.getElementById('fileStatus');
+    const btn = document.getElementById('analyzeBtn');
     btn.disabled = true;
 
     try {
-        status.innerHTML = "Analyse IA: 15% (Extraction...)";
-        if (user.free < 3) user.free++; else user.tokens -= 5000;
-        localStorage.setItem('studDB', JSON.stringify(db));
-        refreshUI();
-
-        // Requête Gemini
-        status.innerHTML = "Analyse IA: 45% (Génération Résumé...)";
+        status.innerText = "Analyse IA: 30% (Lecture...)";
         
-        const prompt = `Agis comme un professeur. Analyse ce document. 
-        1. Fais un résumé structuré et clair.
-        2. Crée un quiz de 3 questions à choix multiples (QCM) avec les réponses. 
-        Réponds au format texte clair.`;
-
+        const prompt = "Analyse ce document. Fais un résumé pédagogique et crée un quiz de 3 questions QCM avec les réponses à la fin.";
+        
         const response = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             body: JSON.stringify({
-                contents: [{
-                    parts: [
-                        { text: prompt },
-                        { inline_data: { mime_type: selectedFileType, data: selectedFileBase64 } }
-                    ]
-                }]
+                contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: fileData.mime, data: fileData.base64 } }] }]
             })
         });
 
-        status.innerHTML = "Analyse IA: 80% (Mise en page...)";
+        status.innerText = "Analyse IA: 75% (Rédaction...)";
         const data = await response.json();
         const output = data.candidates[0].content.parts[0].text;
 
-        // Affichage des résultats
-        displayResults(output);
-        
-        status.innerHTML = "Analyse IA: 100% Terminé !";
-    } catch (error) {
-        console.error(error);
-        alert("Erreur lors de l'appel à l'IA. Vérifie ta clé API.");
+        // Déduction
+        if (currentUser.free < 3) currentUser.free++; else currentUser.tokens -= 5000;
+        save();
+
+        status.innerText = "Analyse IA: 100% Terminé";
+        displayAIResults(output);
+    } catch (e) {
+        alert("Erreur API. Vérifiez votre clé.");
         btn.disabled = false;
     }
 }
 
-function displayResults(text) {
+function displayAIResults(text) {
     document.getElementById('analysisResult').style.display = "block";
-    
-    // On sépare grossièrement le résumé du quiz (Gemini renvoie souvent du Markdown)
-    const parts = text.split(/quiz|questionnaire/i);
-    
+    const parts = text.split(/quiz/i);
     document.getElementById('resText').innerHTML = parts[0].replace(/\n/g, "<br>");
-    
-    if (parts[1]) {
-        document.getElementById('quizContainer').innerHTML = `<div class="box">${parts[1].replace(/\n/g, "<br>")}</div>`;
-    }
+    if (parts[1]) document.getElementById('quizContainer').innerHTML = parts[1].replace(/\n/g, "<br>");
+}
+
+// ADMIN FUNCTIONS
+function showAdmin() {
+    document.getElementById('adminModal').style.display = "flex";
+    document.getElementById('aStock').innerText = db.stockIA.toLocaleString();
+    document.getElementById('aSales').innerText = db.sales.toLocaleString() + " Ar";
+    const list = document.getElementById('reqList');
+    list.innerHTML = db.requests.map(r => `
+        <div class="result-box">
+            <b>${r.uname}</b> - ${r.t.toLocaleString()} tokens (${r.p} Ar)<br>
+            <small>REF: ${r.ref}</small>
+            <button class="btn-main" onclick="approveReq(${r.id})">Valider</button>
+        </div>
+    `).join('');
+}
+
+function approveReq(id) {
+    const idx = db.requests.findIndex(r => r.id === id);
+    const r = db.requests[idx];
+    const u = db.users.find(user => user.id === r.uid);
+    u.tokens += r.t;
+    db.stockIA -= r.t;
+    db.sales += r.p;
+    db.requests.splice(idx, 1);
+    save(); refreshUI(); showAdmin();
 }
 
 function closeModal(id) { document.getElementById(id).style.display = "none"; }
+function closeAnalysis() { closeModal('analysisModal'); document.getElementById('analysisResult').style.display = "none"; }
