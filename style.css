@@ -1,40 +1,20 @@
-:root {
-    --bg-dark: #0b0e14; --card-bg: #1a1b25; --primary: #3b82f6;
-    --accent: #8a2be2; --success: #10b981; --warning: #f59e0b; --text: #ffffff;
-}
-
-body { margin: 0; background: var(--bg-dark); color: var(--text); font-family: 'Segoe UI', sans-serif; }
-
-/* AUTH & MODALS */
-.auth-overlay, .modal-overlay, .admin-modal {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.9);
-    display: flex; align-items: center; justify-content: center; z-index: 1000;
-}
-.auth-card, .shop-card, .admin-content {
-    background: var(--card-bg); padding: 30px; border-radius: 20px;
-    width: 90%; max-width: 350px; text-align: center; border: 1px solid #333;
-}
-
-/* INPUTS */
-input, select {
-    width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px;
-    border: 1px solid #333; background: #0b0e14; color: white; box-sizing: border-box;
-}
-
-/* BOUTONS */
-.login-btn, .btn-confirm { background: var(--primary); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; }
-.btn-cancel { background: transparent; color: #94a3b8; border: none; cursor: pointer; padding: 10px; }
-.buy-tokens-btn { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
-.icon-btn-admin { background: var(--warning); border: none; color: white; padding: 10px; border-radius: 50%; cursor: pointer; position: relative; }
-.badge { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; }
-
-/* SHOP & ADMIN */
-.package { display: flex; justify-content: space-between; padding: 15px; background: #0b0e14; border-radius: 12px; margin-bottom: 10px; cursor: pointer; border: 1px solid transparent; }
-.package.selected { border-color: var(--success); background: rgba(16, 185, 129, 0.1); }
-.price { color: var(--success); }
-.request-item { background: #0b0e14; padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 4px solid var(--warning); }
-.btn-approve { background: var(--success); color: white; border: none; width: 100%; padding: 8px; border-radius: 5px; margin-top: 10px; cursor: pointer; }
-
-/* PROGRESS BAR */
-.token-bar-bg { width: 100%; height: 6px; background: #333; border-radius: 10px; margin: 5px 0; }
-#tokenBar { height: 100%; background: var(--success); border-radius: 10px; width: 0%; transition: 0.5s; }
+:root { --bg: #0b0e14; --card: #1a1b25; --blue: #3b82f6; --green: #10b981; --text: #fff; }
+body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding: 10px; }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.card { background: var(--card); padding: 25px; border-radius: 20px; width: 300px; text-align: center; border: 1px solid #333; }
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.user-card { display: flex; gap: 10px; align-items: center; text-align: left; }
+.avatar { width: 45px; height: 45px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+.token-bar-container { background: #333; height: 8px; border-radius: 10px; margin: 10px 0; position: relative; }
+.token-bar { height: 100%; background: var(--green); width: 100%; border-radius: 10px; transition: 0.5s; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+.subject-card { background: var(--card); padding: 15px; border-radius: 15px; text-align: center; position: relative; }
+.btn-main { background: var(--blue); color: #fff; border: none; padding: 12px; width: 100%; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+.btn-buy { background: var(--green); color: #fff; border: none; padding: 5px 12px; border-radius: 8px; }
+.pack { background: #0b0e14; padding: 10px; margin: 5px 0; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
+.pack.active { border-color: var(--green); background: rgba(16,185,129,0.1); }
+.badge { background: red; padding: 2px 6px; border-radius: 50%; font-size: 10px; vertical-align: top; }
+.upload-zone { border: 2px dashed var(--blue); padding: 20px; border-radius: 15px; margin: 15px 0; cursor: pointer; }
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; padding: 20px; overflow-y: auto; }
+.modal-content { background: var(--card); padding: 20px; border-radius: 20px; max-width: 500px; margin: auto; }
+.summary-box { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; text-align: left; margin: 15px 0; }
