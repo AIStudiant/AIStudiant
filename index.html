@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AI Studiant Pro</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,7 +13,8 @@
         <div class="card">
             <div class="icon-lg">🎓</div>
             <h2>AI Studiant</h2>
-            <input type="text" id="authInput" placeholder="Code (ADMIN ou USER1)">
+            <p>Entrez votre code d'accès</p>
+            <input type="text" id="authInput" placeholder="ADMIN ou USER1">
             <button onclick="handleAuth()" class="btn-main">Se connecter</button>
         </div>
     </div>
@@ -29,7 +30,8 @@
             </div>
             <div class="nav-btns">
                 <button id="adminBtn" class="btn-warn" style="display:none;" onclick="showAdmin()">
-                    <i class="fas fa-shield-alt"></i> <span id="badge" class="badge">0</span>
+                    <i class="fas fa-shield-alt"></i> 
+                    <span id="badge" class="badge" style="display:none;">0</span>
                 </button>
                 <button onclick="location.reload()" class="btn-icon"><i class="fas fa-power-off"></i></button>
             </div>
@@ -42,57 +44,80 @@
 
         <div class="actions">
             <span>Gratuit : <b id="uFree">0/3</b></span>
-            <button onclick="showShop()" class="btn-buy">Acheter</button>
+            <button onclick="showShop()" class="btn-buy"><i class="fas fa-shopping-cart"></i> Acheter</button>
         </div>
 
         <div class="search-section">
-            <input type="text" id="search" placeholder="Matière...">
+            <input type="text" id="search" placeholder="Rechercher une matière...">
             <button class="btn-add" onclick="addSubject()">+</button>
         </div>
 
         <div id="subjectList" class="grid"></div>
     </div>
 
-    <div id="analysisModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">×</span>
-            <h2 id="modalTitle">Matière</h2>
-            <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <p>Uploader PDF / Word</p>
-                <input type="file" id="fileInput" hidden onchange="handleFileUpload()">
-            </div>
-            <div id="fileInfo"></div>
-            <button id="analyzeBtn" class="btn-main" style="display:none;" onclick="startAnalysis()">Analyser & Créer Quiz</button>
-            <div id="results" style="display:none;">
-                <div class="summary-box"><h3>Résumé</h3><p id="summaryText"></p></div>
-                <div id="quizBox"></div>
-            </div>
-        </div>
-    </div>
-
     <div id="shopModal" class="overlay" style="display:none;">
-        <div class="card">
+        <div class="card shop-card">
             <h3>Boutique Tokens</h3>
-            <div class="pack" onclick="setPack(500000, 1000)">500k Tokens - 1000Ar</div>
-            <div class="pack" onclick="setPack(1000000, 2000)">1M Tokens - 2000Ar</div>
-            <select id="method"><option>MVola</option><option>Orange Money</option><option>Airtel</option></select>
-            <input type="text" id="refId" placeholder="Réf. Transaction">
-            <button id="sendBtn" class="btn-main" disabled onclick="sendReq()">Envoyer</button>
-            <button onclick="closeShop()" class="btn-text">Annuler</button>
+            <div class="pack" id="pack1" onclick="setPack(500000, 1000, 'pack1')">
+                <span>500k Tokens</span> <b>1 000 Ar</b>
+            </div>
+            <div class="pack" id="pack2" onclick="setPack(1000000, 2000, 'pack2')">
+                <span>1M Tokens</span> <b>2 000 Ar</b>
+            </div>
+            
+            <div class="payment-fields">
+                <select id="method">
+                    <option>MVola</option>
+                    <option>Orange Money</option>
+                    <option>Airtel Money</option>
+                </select>
+                <input type="text" id="refId" placeholder="Réf. Transaction (Ex: 123456)">
+            </div>
+
+            <div class="shop-footer">
+                <button onclick="closeShop()" class="btn-text">Annuler</button>
+                <button id="sendBtn" class="btn-main" disabled onclick="sendReq()">Envoyer</button>
+            </div>
         </div>
     </div>
 
     <div id="adminModal" class="overlay" style="display:none;">
-        <div class="card admin-card">
-            <h3>Panel Admin</h3>
-            <div class="stats">
-                <div>Stock IA: <b id="aStock">1M</b></div>
-                <div>Ventes: <b id="aSales">0</b> Ar</div>
+        <div class="card admin-panel">
+            <div class="admin-header">
+                <h3>Gestion Administrative</h3>
+                <button onclick="closeAdmin()" class="close-btn">&times;</button>
             </div>
-            <h4>Requêtes à valider</h4>
-            <div id="reqList"></div>
-            <button onclick="closeAdmin()" class="btn-main">Fermer</button>
+            <div class="stats-grid">
+                <div class="stat-item">Stock IA: <b id="aStock">1M</b></div>
+                <div class="stat-item">Ventes: <b id="aSales">0</b> Ar</div>
+            </div>
+            <h4>Requêtes de validation</h4>
+            <div id="reqList" class="request-list">
+                </div>
+        </div>
+    </div>
+
+    <div id="analysisModal" class="modal-full" style="display:none;">
+        <div class="modal-content">
+            <header>
+                <h2 id="modalTitle">Analyse</h2>
+                <button onclick="closeAnalysis()" class="close-btn">&times;</button>
+            </header>
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-file-upload"></i>
+                <p>Cliquez pour uploader un document</p>
+                <input type="file" id="fileInput" hidden onchange="handleFileSelect()">
+            </div>
+            <div id="fileInfo" class="file-info"></div>
+            <button id="analyzeBtn" class="btn-main" style="display:none;" onclick="startAnalysis()">Lancer l'Analyse (5000 tokens)</button>
+            
+            <div id="analysisResults" class="results-area" style="display:none;">
+                <div class="summary-box">
+                    <h3>Résumé du cours</h3>
+                    <p id="summaryTxt"></p>
+                </div>
+                <div id="quizArea"></div>
+            </div>
         </div>
     </div>
 
