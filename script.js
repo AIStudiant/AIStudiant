@@ -1,134 +1,89 @@
-// --- DONNÉES ET ÉLÉMENTS ---
-let subjects = JSON.parse(localStorage.getItem('mySubjects')) || [
-    { name: "Mathématiques", icon: "📐" },
-    { name: "Physique", icon: "⚛️" }
-];
+// SIMULATION BASE DE DONNÉES (MongoDB simulé dans le navigateur)
+let db = JSON.parse(localStorage.getItem('appDB')) || {
+    users: [
+        { id: "ADMIN", name: "Administrateur", tokens: 0, freeUsed: 0, role: "admin" },
+        { id: "USER1", name: "Jean Dupont", tokens: 1000, freeUsed: 1, role: "user" }
+    ],
+    globalStats: { totalFreeServed: 12500, totalPaidSold: 500000 }
+};
 
-let currentQuiz = [];
-let currentQuestionIndex = 0;
-let score = 0;
-let selectedFile = null;
+let currentUser = null;
 
-const listElement = document.getElementById('subject-list');
-const modal = document.getElementById('analysisModal');
-const quizScreen = document.getElementById('quizScreen');
+function saveDB() { localStorage.setItem('appDB', JSON.stringify(db)); }
 
-// --- INITIALISATION ---
-function render(filter = "") {
-    listElement.innerHTML = "";
-    subjects.filter(s => s.name.toLowerCase().includes(filter.toLowerCase())).forEach((sub, i) => {
-        const card = document.createElement('div');
-        card.className = "card";
-        card.innerHTML = `<div style="flex:1" onclick="openAnalysis('${sub.name}')"><span>${sub.icon} ${sub.name}</span></div>
-                          <i class="fas fa-trash delete-icon" onclick="deleteSub(event, ${i})"></i>`;
-        listElement.appendChild(card);
-    });
-}
+// --- AUTHENTIFICATION ---
+function handleAuth() {
+    const input = document.getElementById('authInput').value.toUpperCase();
+    const user = db.users.find(u => u.id === input);
 
-// --- GESTION UPLOAD ---
-document.getElementById('modalFileInput').onchange = (e) => {
-    const file = e.target.files[0];
-    const maxSize = 500 * 1024 * 1024; // 500 Mo
-
-    if (file) {
-        if (file.size > maxSize) {
-            alert("⚠️ Fichier trop lourd (> 500 Mo).");
-            e.target.value = "";
-            return;
-        }
-        selectedFile = file;
-        document.getElementById('uploadStatus').innerText = "✅ " + file.name;
-        document.getElementById('uploadStatus').style.color = "#10b981";
+    if (user) {
+        currentUser = user;
+        document.getElementById('authScreen').style.display = "none";
+        document.getElementById('mainApp').style.display = "block";
+        updateUI();
+    } else {
+        alert("Code inconnu. Essayez ADMIN ou USER1");
     }
-};
-
-// --- PIPELINE ANALYSE IA ---
-document.getElementById('modalAnalyzeBtn').onclick = function() {
-    if (!selectedFile) return alert("Veuillez choisir un fichier.");
-
-    this.style.display = "none";
-    document.getElementById('progressContainer').style.display = "block";
-    
-    let progress = 0;
-    let time = 4; // Temps simulé rapide
-
-    const interval = setInterval(() => {
-        progress += 5;
-        let rem = Math.ceil(time - (progress/100 * time));
-        document.getElementById('progressBar').style.width = progress + "%";
-        document.getElementById('progressPercent').innerText = progress + "%";
-        document.getElementById('timeLeft').innerText = `Temps estimé : ${rem}s`;
-
-        if (progress >= 100) {
-            clearInterval(interval);
-            document.getElementById('viewQuizBtn').style.display = "flex";
-            document.getElementById('progressLabel').innerText = "Analyse terminée !";
-        }
-    }, 200);
-};
-
-// --- LOGIQUE DU QUIZ ---
-document.getElementById('viewQuizBtn').onclick = () => {
-    modal.style.display = "none";
-    quizScreen.style.display = "flex";
-    
-    // Simulation de l'unique appel IA (Pipeline Hybride)
-    currentQuiz = [
-        { q: "Quelle est la capitale de Madagascar ?", opts: ["Tamatave", "Antsirabe", "Antananarivo", "Majunga"], a: "Antananarivo" },
-        { q: "Quel symbole représente l'atome d'Hydrogène ?", opts: ["He", "O", "H", "N"], a: "H" },
-        { q: "Combien font 7 x 8 ?", opts: ["48", "56", "64", "54"], a: "56" },
-        { q: "Quelle planète est surnommée la planète rouge ?", opts: ["Vénus", "Jupiter", "Mars", "Saturne"], a: "Mars" },
-        { q: "Quel gaz est nécessaire à la respiration ?", opts: ["Azote", "Oxygène", "CO2", "Argon"], a: "Oxygène" }
-    ];
-    
-    currentQuestionIndex = 0;
-    score = 0;
-    document.getElementById('quizBody').style.display = "block";
-    document.getElementById('scoreScreen').style.display = "none";
-    showQuestion();
-};
-
-function showQuestion() {
-    const data = currentQuiz[currentQuestionIndex];
-    document.getElementById('questionCounter').innerText = `${currentQuestionIndex + 1}/${currentQuiz.length}`;
-    document.getElementById('quizStatusBar').style.width = ((currentQuestionIndex + 1) / currentQuiz.length) * 100 + "%";
-    document.getElementById('questionText').innerText = data.q;
-    
-    const list = document.getElementById('optionsList');
-    list.innerHTML = "";
-    data.opts.forEach(o => {
-        const b = document.createElement('button');
-        b.className = "option-btn";
-        b.innerText = o;
-        b.onclick = () => {
-            const btns = document.querySelectorAll('.option-btn');
-            btns.forEach(btn => btn.disabled = true);
-            if(o === data.a) { b.classList.add('correct'); score++; }
-            else { b.classList.add('wrong'); btns.forEach(btn => { if(btn.innerText === data.a) btn.classList.add('correct'); }); }
-            
-            setTimeout(() => {
-                currentQuestionIndex++;
-                if(currentQuestionIndex < currentQuiz.length) showQuestion();
-                else { document.getElementById('quizBody').style.display = "none"; 
-                       document.getElementById('scoreScreen').style.display = "block";
-                       document.getElementById('finalScore').innerText = `${score}/${currentQuiz.length}`; }
-            }, 1200);
-        };
-        list.appendChild(b);
-    });
 }
 
-// --- FONCTIONS SECONDAIRES ---
-function openAnalysis(name) { document.getElementById('modalTitle').innerText = name; modal.style.display = "block"; }
-function resetModal() { modal.style.display = "none"; location.reload(); }
-document.getElementById('closeModal').onclick = resetModal;
-document.getElementById('closeQuiz').onclick = () => { if(confirm("Quitter ?")) location.reload(); };
+function updateUI() {
+    document.getElementById('userName').innerText = currentUser.name;
+    document.getElementById('userTokens').innerText = currentUser.tokens.toLocaleString();
+    document.getElementById('dailyFree').innerText = `${currentUser.freeUsed}/3`;
+    
+    // Si Admin, montrer le bouton vers le panel
+    if (currentUser.role === "admin") {
+        document.getElementById('goToAdmin').style.display = "block";
+    }
+}
 
-document.getElementById('addSubjectBtn').onclick = () => {
-    const n = prompt("Nom de la matière ?");
-    if(n) { subjects.push({name:n, icon:"📚"}); localStorage.setItem('mySubjects', JSON.stringify(subjects)); render(); }
+// --- BOUTIQUE ET ACHAT SIMULÉ ---
+function showShop() { document.getElementById('shopSection').style.display = "flex"; }
+function hideShop() { document.getElementById('shopSection').style.display = "none"; }
+
+function simulatePurchase(amount, price) {
+    if(confirm(`Confirmer l'achat de ${amount} tokens pour ${price} USD ?`)) {
+        currentUser.tokens += amount;
+        db.globalStats.totalPaidSold += amount;
+        saveDB();
+        updateUI();
+        hideShop();
+        alert("Achat réussi ! Vos tokens ont été ajoutés.");
+    }
+}
+
+// --- PANEL ADMIN ---
+document.getElementById('goToAdmin').onclick = () => {
+    document.getElementById('adminScreen').style.display = "flex";
+    document.getElementById('adminFreeTotal').innerText = db.globalStats.totalFreeServed.toLocaleString();
+    document.getElementById('adminPaidTotal').innerText = db.globalStats.totalPaidSold.toLocaleString();
+    
+    const list = document.getElementById('adminUserList');
+    list.innerHTML = db.users.map(u => `
+        <div class="user-item">
+            <span>${u.name} (${u.id})</span>
+            <span>${u.tokens} tokens</span>
+        </div>
+    `).join('');
 };
-document.getElementById('searchInput').oninput = (e) => render(e.target.value);
-function deleteSub(e, i) { e.stopPropagation(); if(confirm("Supprimer ?")) { subjects.splice(i,1); localStorage.setItem('mySubjects', JSON.stringify(subjects)); render(); } }
 
-render();
+function hideAdmin() { document.getElementById('adminScreen').style.display = "none"; }
+
+// --- LOGIQUE D'ANALYSE (MISE À JOUR AVEC TOKENS) ---
+// Remplace ton ancienne fonction d'analyse par celle-ci :
+function processAnalysis(tokensNeeded) {
+    if (currentUser.freeUsed < 3) {
+        currentUser.freeUsed++;
+        db.globalStats.totalFreeServed += tokensNeeded;
+        alert("Utilisation du quota GRATUIT journalier.");
+    } else if (currentUser.tokens >= tokensNeeded) {
+        currentUser.tokens -= tokensNeeded;
+        alert(`Consommation de ${tokensNeeded} tokens de votre crédit.`);
+    } else {
+        alert("Plus de tokens ! Veuillez passer à la boutique.");
+        return false;
+    }
+    saveDB();
+    updateUI();
+    return true;
+}
