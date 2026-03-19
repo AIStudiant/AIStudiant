@@ -1,55 +1,68 @@
-// Liste initiale de matières
-let subjects = ["📐 Mathématiques", "⚛️ Physique", "🧪 Science"];
+let subjects = [
+    { name: "Mathématiques", icon: "📐" },
+    { name: "Physique", icon: "⚛️" },
+    { name: "Science", icon: "🧪" }
+];
 
-// Fonction pour afficher les matières
-function renderSubjects() {
-    const list = document.getElementById('subject-list');
-    list.innerHTML = ""; // On vide la liste
+const listElement = document.getElementById('subject-list');
+const modal = document.getElementById('analysisModal');
 
-    subjects.forEach((sub, index) => {
+// --- 1. FONCTION D'AFFICHAGE ---
+function render(filter = "") {
+    listElement.innerHTML = "";
+    const filtered = subjects.filter(s => s.name.toLowerCase().includes(filter.toLowerCase()));
+
+    filtered.forEach((sub, index) => {
         const card = document.createElement('div');
         card.className = "card";
         card.innerHTML = `
-            <span>${sub}</span>
-            <i class="fas fa-trash" onclick="deleteSubject(${index})"></i>
+            <div style="flex:1" onclick="openAnalysis('${sub.name}')">
+                <span>${sub.icon} ${sub.name}</span>
+            </div>
+            <i class="fas fa-trash" onclick="deleteSub(${index})"></i>
         `;
-        list.appendChild(card);
+        listElement.appendChild(card);
     });
 }
 
-// Supprimer une matière
-function deleteSubject(index) {
-    subjects.splice(index, 1);
-    renderSubjects();
-}
-
-// Gérer l'analyse IA
-const analyzeBtn = document.getElementById('analyzeBtn');
-
-analyzeBtn.addEventListener('click', () => {
-    // 1. On change l'apparence du bouton pendant le chargement
-    analyzeBtn.disabled = true;
-    const originalText = analyzeBtn.innerHTML;
-    analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyse IA...';
-
-    // 2. Simulation de l'appel vers une API d'Intelligence Artificielle
-    // Dans le futur, tu pourras utiliser Fetch() ici pour appeler OpenAI ou Gemini
-    setTimeout(() => {
-        alert("Félicitations ! Votre quiz de 5 questions est prêt.");
-        
-        // On remet le bouton à zéro
-        analyzeBtn.disabled = false;
-        analyzeBtn.innerHTML = originalText;
-    }, 2500);
+// --- 2. GESTION DE LA RECHERCHE ---
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    render(e.target.value);
 });
 
-// Gérer l'upload de fichier
-document.getElementById('fileInput').addEventListener('change', (e) => {
-    const fileName = e.target.files[0]?.name;
-    if (fileName) {
-        alert("Fichier sélectionné : " + fileName);
+// --- 3. AJOUT D'UNE MATIÈRE ---
+document.getElementById('addSubjectBtn').addEventListener('click', () => {
+    const name = prompt("Nom de la nouvelle matière ?");
+    if (name) {
+        subjects.push({ name: name, icon: "📚" });
+        render();
     }
 });
 
-// Premier affichage au chargement
-renderSubjects();
+// --- 4. OUVERTURE DE L'ANALYSE (MODAL) ---
+function openAnalysis(name) {
+    document.getElementById('modalTitle').innerText = name;
+    modal.style.display = "block";
+}
+
+// Fermer la modal
+document.querySelector('.close').onclick = () => modal.style.display = "none";
+window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; }
+
+// --- 5. ANALYSE ET QUIZ ---
+document.getElementById('modalAnalyzeBtn').onclick = function() {
+    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyse IA en cours...';
+    setTimeout(() => {
+        alert("Analyse réussie ! Quiz généré pour " + document.getElementById('modalTitle').innerText);
+        this.innerHTML = '<i class="fas fa-brain"></i> Analyser et Créer Quiz';
+        modal.style.display = "none";
+    }, 2000);
+};
+
+function deleteSub(index) {
+    subjects.splice(index, 1);
+    render();
+}
+
+// Lancement initial
+render();
