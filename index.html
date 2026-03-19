@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-container">
+    <div id="mainApp" class="app-container">
         <header>
             <div class="profile">
                 <div class="avatar">👨‍🎓</div>
@@ -22,24 +22,62 @@
             <input type="text" id="searchInput" placeholder="Rechercher une matière...">
         </div>
 
-        <main id="subject-list">
-            </main>
+        <main id="subject-list"></main>
     </div>
 
     <div id="analysisModal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <span class="close" id="closeModal">&times;</span>
             <h2 id="modalTitle">Matière</h2>
+            
             <div class="modal-actions">
-                <label class="upload-box" for="modalFileInput">
+                <label class="upload-box" id="dropZone" for="modalFileInput">
                     <i class="fas fa-file-pdf"></i>
-                    <p>Uploader PDF / Word</p>
-                    <input type="file" id="modalFileInput" style="display:none">
+                    <p id="uploadStatus">Uploader PDF / Word</p>
+                    <small style="display:block; margin-top:5px; color:#64748b;">Max : 500 Mo</small>
+                    <input type="file" id="modalFileInput" style="display:none" accept=".pdf,.doc,.docx,.txt">
                 </label>
+
+                <div id="progressContainer" style="display: none; margin-bottom: 20px; text-align: left;">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
+                        <span id="progressLabel">Analyse IA...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div id="progressBar" class="progress-fill"></div>
+                    </div>
+                    <p id="timeLeft" style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Temps estimé : --</p>
+                </div>
+
                 <button id="modalAnalyzeBtn" class="main-btn">
                     <i class="fas fa-brain"></i> Analyser et Créer Quiz
                 </button>
+
+                <button id="viewQuizBtn" class="main-btn btn-success" style="display:none;">
+                    <i class="fas fa-eye"></i> Afficher le Quiz
+                </button>
             </div>
+        </div>
+    </div>
+
+    <div id="quizScreen" class="quiz-container" style="display: none;">
+        <div class="quiz-header">
+            <button id="closeQuiz" class="icon-btn"><i class="fas fa-times"></i></button>
+            <div class="progress-bar-mini"><div id="quizStatusBar"></div></div>
+            <span id="questionCounter" style="color:white; font-size: 14px;">1/5</span>
+        </div>
+
+        <div id="quizBody" class="question-box">
+            <h2 id="questionText">Chargement...</h2>
+            <div id="optionsList" class="options-grid"></div>
+        </div>
+
+        <div id="scoreScreen" style="display: none; text-align: center; margin-top: 50px;">
+            <div class="result-circle">
+                <h1 id="finalScore" style="font-size: 3rem;">0/5</h1>
+                <p>Score Final</p>
+            </div>
+            <button onclick="location.reload()" class="main-btn btn-success">Continuer</button>
         </div>
     </div>
 
