@@ -1,108 +1,128 @@
 let db = JSON.parse(localStorage.getItem('appDB')) || {
-    adminStock: 1000000,
+    stockIA: 1000000, sales: 0,
     users: [
-        { id: "ADMIN", name: "Administrateur", tokens: 0, role: "admin", freeUsed: 0 },
-        { id: "USER1", name: "Jean Dupont", tokens: 5000, role: "user", freeUsed: 0 }
+        { id: "ADMIN", name: "Admin", tokens: 0, role: "admin", free: 0 },
+        { id: "USER1", name: "Jean Dupont", tokens: 6000, role: "user", free: 0 }
     ],
-    pendingRequests: [],
-    totalAr: 0
+    requests: [],
+    subjects: ["Mathématiques", "Physique", "Science"]
 };
 
-let currentUser = null;
-let selectedPackage = null;
+let curr = null;
+let selPack = null;
 
-function saveDB() { localStorage.setItem('appDB', JSON.stringify(db)); }
+function save() { localStorage.setItem('appDB', JSON.stringify(db)); }
 
-// CONNEXION
+// AUTH
 function handleAuth() {
-    const code = document.getElementById('authInput').value.toUpperCase();
-    const user = db.users.find(u => u.id === code);
-    if (user) {
-        currentUser = user;
+    const val = document.getElementById('authInput').value.toUpperCase();
+    curr = db.users.find(u => u.id === val);
+    if (curr) {
         document.getElementById('authScreen').style.display = "none";
         document.getElementById('mainApp').style.display = "block";
-        updateUI();
-    } else { alert("Code invalide !"); }
+        render();
+    } else alert("Code erroné");
 }
 
-function updateUI() {
-    document.getElementById('userName').innerText = currentUser.name;
-    document.getElementById('userTokenCount').innerText = (currentUser.role === 'admin' ? db.adminStock : currentUser.tokens).toLocaleString();
-    document.getElementById('dailyFree').innerText = `${currentUser.freeUsed}/3`;
+function render() {
+    document.getElementById('uName').innerText = curr.name;
+    document.getElementById('uAvatar').innerText = curr.name[0];
+    document.getElementById('uTokens').innerText = (curr.role==='admin' ? db.stockIA : curr.tokens).toLocaleString();
+    document.getElementById('uFree').innerText = curr.free + "/3";
+    document.getElementById('tokenBar').style.width = (db.stockIA/1000000*100) + "%";
+    document.getElementById('tokenLabel').innerText = "Stock IA: " + (db.stockIA/1000000*100).toFixed(1) + "%";
     
-    // Barre de progression (Stock IA)
-    let percent = (db.adminStock / 1000000) * 100;
-    document.getElementById('tokenBar').style.width = percent + "%";
-    document.getElementById('tokenPercent').innerText = percent.toFixed(1) + "% stock IA";
-
-    if (currentUser.role === "admin") {
-        document.getElementById('goToAdmin').style.display = "block";
-        if(db.pendingRequests.length > 0) document.getElementById('notifBadge').style.display = "block";
+    if(curr.role==='admin') {
+        document.getElementById('adminBtn').style.display = "block";
+        document.getElementById('badge').innerText = db.requests.length;
     }
+
+    const list = document.getElementById('subjectList');
+    list.innerHTML = db.subjects.map(s => `
+        <div class="subject-card" onclick="openSubject('${s}')">
+            <div style="font-size:30px">📚</div>
+            <b>${s}</b>
+        </div>
+    `).join('');
 }
 
-// BOUTIQUE
-function showShop() { document.getElementById('shopOverlay').style.display = "flex"; }
-function closeShop() { document.getElementById('shopOverlay').style.display = "none"; }
-
-function selectPack(tokens, price) {
-    selectedPackage = { tokens, price };
-    document.querySelectorAll('.package').forEach(p => p.classList.remove('selected'));
-    event.currentTarget.classList.add('selected');
-    document.getElementById('sendRequestBtn').disabled = false;
+// SHOP
+function showShop() { document.getElementById('shopModal').style.display = "flex"; }
+function closeShop() { document.getElementById('shopModal').style.display = "none"; }
+function setPack(t, p) {
+    selPack = {t, p};
+    document.getElementById('sendBtn').disabled = false;
+    document.querySelectorAll('.pack').forEach(el => el.classList.remove('active'));
+    event.target.classList.add('active');
 }
-
-function sendPurchaseRequest() {
-    const ref = document.getElementById('transactionID').value;
-    const prov = document.getElementById('paymentProvider').value;
-    if(!ref) return alert("Entrez la référence du transfert !");
-
-    db.pendingRequests.push({
-        id: Date.now(),
-        userId: currentUser.id,
-        userName: currentUser.name,
-        tokens: selectedPackage.tokens,
-        price: selectedPackage.price,
-        provider: prov,
-        ref: ref
-    });
-    saveDB();
-    closeShop();
-    alert("Requête envoyée. Attendez la validation de l'Admin.");
-    updateUI();
+function sendReq() {
+    const ref = document.getElementById('refId').value;
+    if(!ref) return alert("Entrez la référence");
+    db.requests.push({ id: Date.now(), uid: curr.id, uname: curr.name, tokens: selPack.t, price: selPack.p, ref: ref });
+    save();
+    document.getElementById('sendBtn').innerText = "Fini !";
+    setTimeout(() => { closeShop(); render(); document.getElementById('sendBtn').innerText = "Envoyer"; }, 1000);
 }
 
 // ADMIN
-document.getElementById('goToAdmin').onclick = () => {
-    document.getElementById('adminScreen').style.display = "flex";
-    document.getElementById('adminStockDisplay').innerText = db.adminStock.toLocaleString();
-    document.getElementById('adminSalesDisplay').innerText = db.totalAr.toLocaleString() + " Ar";
-    
-    const list = document.getElementById('adminRequestList');
-    list.innerHTML = db.pendingRequests.length === 0 ? "Aucune requête." : 
-        db.pendingRequests.map(r => `
-            <div class="request-item">
-                <b>${r.userName}</b> - ${r.price} Ar<br>
-                <small>${r.provider} REF: ${r.ref}</small>
-                <button class="btn-approve" onclick="approve(${r.id})">Valider le Paiement</button>
-            </div>
-        `).join('');
-};
-
-function approve(id) {
-    const idx = db.pendingRequests.findIndex(r => r.id === id);
-    const req = db.pendingRequests[idx];
-    const user = db.users.find(u => u.id === req.userId);
-    
-    if(user && db.adminStock >= req.tokens) {
-        user.tokens += req.tokens;
-        db.adminStock -= req.tokens; // Le stock Admin diminue
-        db.totalAr += req.price;
-        db.pendingRequests.splice(idx, 1);
-        saveDB();
-        alert("Paiement validé !");
-        location.reload();
-    } else { alert("Stock IA insuffisant !"); }
+function showAdmin() {
+    document.getElementById('adminModal').style.display = "flex";
+    document.getElementById('aStock').innerText = db.stockIA.toLocaleString();
+    document.getElementById('aSales').innerText = db.sales.toLocaleString();
+    const list = document.getElementById('reqList');
+    list.innerHTML = db.requests.map(r => `
+        <div style="background:#0b0e14; padding:10px; margin:5px; border-radius:8px; text-align:left; font-size:12px">
+            <b>${r.uname}</b> - ${r.price}Ar<br>REF: ${r.ref}
+            <button onclick="approve(${r.id})" style="background:#10b981; color:#fff; border:none; padding:5px; width:100%; margin-top:5px; border-radius:5px">Valider</button>
+        </div>
+    `).join('');
+}
+function closeAdmin() { document.getElementById('adminModal').style.display = "none"; }
+function approve(rid) {
+    const idx = db.requests.findIndex(r => r.id === rid);
+    const r = db.requests[idx];
+    const user = db.users.find(u => u.id === r.uid);
+    user.tokens += r.tokens;
+    db.stockIA -= r.tokens;
+    db.sales += r.price;
+    db.requests.splice(idx, 1);
+    save();
+    showAdmin();
+    render();
 }
 
-function hideAdmin() { document.getElementById('adminScreen').style.display = "none"; }
+// ANALYSE
+let activeSub = "";
+function openSubject(s) {
+    activeSub = s;
+    document.getElementById('modalTitle').innerText = s;
+    document.getElementById('analysisModal').style.display = "block";
+}
+function closeModal() { 
+    document.getElementById('analysisModal').style.display = "none"; 
+    document.getElementById('results').style.display = "none";
+}
+function handleFileUpload() {
+    const file = document.getElementById('fileInput').files[0];
+    if(file) {
+        document.getElementById('fileInfo').innerText = "Fichier: " + file.name;
+        document.getElementById('analyzeBtn').style.display = "block";
+    }
+}
+function startAnalysis() {
+    if(curr.free < 3 || curr.tokens >= 5000) {
+        if(curr.free < 3) curr.free++; else curr.tokens -= 5000;
+        save();
+        render();
+        document.getElementById('analyzeBtn').style.display = "none";
+        document.getElementById('results').style.display = "block";
+        document.getElementById('summaryText').innerText = "Analyse du cours sur " + activeSub + "... Le réchauffement climatique impacte la biodiversité via la hausse des températures.";
+        document.getElementById('quizBox').innerHTML = `
+            <div class="summary-box">
+                <b>Question 1:</b> Quelle est la cause principale ?<br>
+                <button class="btn-main" style="background:#333">CO2</button>
+                <button class="btn-main" style="background:#333">Oxygène</button>
+            </div>
+        `;
+    } else alert("Tokens insuffisants");
+}
