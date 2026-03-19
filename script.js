@@ -1,74 +1,75 @@
-const GEMINI_API_KEY = "VOTRE_CLE_API"; 
-const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const API_KEY = "VOTRE_CLE_GEMINI";
+const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
-// Initialisation de la base de données locale
 let db = JSON.parse(localStorage.getItem('studDB')) || {
     stockIA: 1000000,
     users: [
         { id: "ADMIN", name: "Administrateur", tokens: 1000000, role: "admin", free: 0 },
-        { id: "USER1", name: "Jean Dupont", tokens: 6000, role: "user", free: 0 }
+        { id: "USER1", name: "Étudiant Test", tokens: 0, role: "user", free: 0 }
     ],
-    subjects: ["Mathématiques", "Physique", "SVT", "Anglais"]
+    requests: [],
+    subjects: ["Mathématiques", "Physique-Chimie", "SVT", "Anglais", "Philosophie"]
 };
 
-let currentUser = null;
+let user = null;
+let pack = null;
 let fileData = { base64: null, mime: null };
 
 function save() { localStorage.setItem('studDB', JSON.stringify(db)); }
 
-// 1. CONNEXION (Correction du bouton bloqué)
+// CONNEXION
 function handleAuth() {
-    const input = document.getElementById('authInput').value.trim().toUpperCase();
-    currentUser = db.users.find(u => u.id === input);
-
-    if (currentUser) {
+    const code = document.getElementById('authInput').value.trim().toUpperCase();
+    user = db.users.find(u => u.id === code);
+    if(user) {
         document.getElementById('authScreen').style.display = "none";
         document.getElementById('mainApp').style.display = "block";
         refreshUI();
-    } else {
-        alert("Code incorrect. Utilisez ADMIN ou USER1");
-    }
+    } else alert("Code Invalide !");
 }
 
 function refreshUI() {
-    document.getElementById('uName').innerText = currentUser.name;
-    document.getElementById('uTokens').innerText = currentUser.tokens.toLocaleString();
-    document.getElementById('uFree').innerText = currentUser.free + "/3";
+    document.getElementById('uName').innerText = user.name;
+    document.getElementById('uAvatar').innerText = user.name[0];
+    document.getElementById('uTokens').innerText = user.tokens.toLocaleString();
+    document.getElementById('uFree').innerText = user.free + "/3";
     
-    // Mise à jour barre de stock
     let p = (db.stockIA / 1000000) * 100;
     document.getElementById('tokenBar').style.width = p + "%";
     document.getElementById('tokenLabel').innerText = `Stock IA: ${p.toFixed(1)}%`;
 
+    if(user.role === 'admin') {
+        document.getElementById('adminBtn').style.display = "block";
+        document.getElementById('badge').innerText = db.requests.length;
+    }
     renderSubjects();
 }
 
-// 2. RENDU DES MATIERES (Correction du clic)
 function renderSubjects() {
-    const list = document.getElementById('subjectList');
-    list.innerHTML = db.subjects.map(s => `
+    const grid = document.getElementById('subjectList');
+    grid.innerHTML = db.subjects.map(s => `
         <div class="subject-card" onclick="openAnalysis('${s}')">
-            <i class="fas fa-book"></i><br><b>${s}</b>
+            <i class="fas fa-book-open"></i><br><b>${s}</b>
         </div>
     `).join('');
 }
 
-// 3. GESTION GEMINI & ANALYSE
+// ANALYSE IA
 function openAnalysis(s) {
     document.getElementById('activeSubject').innerText = s;
     document.getElementById('analysisModal').style.display = "flex";
-    document.getElementById('uploadStep').style.display = "block";
-    document.getElementById('analysisResult').style.display = "none";
+    document.getElementById('stepUpload').style.display = "block";
+    document.getElementById('stepResult').style.display = "none";
+    document.getElementById('fileStatus').innerText = "";
 }
 
 async function onFileSelected() {
     const file = document.getElementById('fileInput').files[0];
     const status = document.getElementById('fileStatus');
-    if (!file) return;
+    if(!file) return;
 
-    // Simulation de progression upload
-    for (let i = 0; i <= 100; i += 25) {
-        status.innerText = `Upload: ${i}%`;
+    for(let i=0; i<=100; i+=25) {
+        status.innerText = `Chargement: ${i}%`;
         await new Promise(r => setTimeout(r, 100));
     }
 
@@ -76,55 +77,91 @@ async function onFileSelected() {
     reader.onload = (e) => {
         fileData.base64 = e.target.result.split(',')[1];
         fileData.mime = file.type;
-        status.innerHTML = `<b style="color:#238636">✓ Fichier prêt</b>`;
+        status.innerHTML = `<b style="color:#10b981">✓ Fichier prêt</b>`;
         document.getElementById('analyzeBtn').style.display = "block";
     };
     reader.readAsDataURL(file);
 }
 
 async function runAnalysis() {
-    if (currentUser.free >= 3 && currentUser.tokens < 5000) return alert("Tokens insuffisants");
+    // Verif Tokens (Admin passe toujours)
+    if(user.role !== 'admin' && user.free >= 3 && user.tokens < 5000) return alert("Tokens insuffisants !");
 
     const status = document.getElementById('fileStatus');
-    const btn = document.getElementById('analyzeBtn');
-    btn.disabled = true;
+    document.getElementById('analyzeBtn').disabled = true;
 
     try {
-        status.innerText = "Analyse IA: 35% (Lecture...)";
+        status.innerText = "Analyse IA: 40% (Réflexion...)";
         
-        const prompt = "Analyse ce document. Fais un résumé court et crée un quiz de 3 questions QCM avec les réponses.";
-        
-        const response = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(`${API_URL}?key=${API_KEY}`, {
             method: 'POST',
             body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: fileData.mime, data: fileData.base64 } }] }]
+                contents: [{ parts: [
+                    { text: "Fais un résumé structuré de ce document et crée un quiz QCM de 3 questions avec les réponses." },
+                    { inline_data: { mime_type: fileData.mime, data: fileData.base64 } }
+                ]}]
             })
         });
 
-        status.innerText = "Analyse IA: 80% (Rédaction...)";
+        status.innerText = "Analyse IA: 90% (Finalisation...)";
         const data = await response.json();
-        const output = data.candidates[0].content.parts[0].text;
+        const text = data.candidates[0].content.parts[0].text;
 
-        // Consommation tokens/essais
-        if (currentUser.free < 3) currentUser.free++; else currentUser.tokens -= 5000;
-        save();
-        refreshUI();
+        if(user.role !== 'admin') {
+            if(user.free < 3) user.free++; else user.tokens -= 5000;
+            save(); refreshUI();
+        }
 
-        status.innerText = "Analyse IA: 100% Terminé";
-        displayResults(output);
-    } catch (e) {
-        alert("Erreur API : Vérifiez votre clé.");
-        btn.disabled = false;
+        displayResults(text);
+    } catch(e) {
+        alert("Erreur API Gemini. Vérifiez votre clé.");
+        document.getElementById('analyzeBtn').disabled = false;
     }
 }
 
 function displayResults(text) {
-    document.getElementById('uploadStep').style.display = "none";
-    document.getElementById('analysisResult').style.display = "block";
-    
+    document.getElementById('stepUpload').style.display = "none";
+    document.getElementById('stepResult').style.display = "block";
     const parts = text.split(/quiz/i);
-    document.getElementById('resText').innerHTML = parts[0].replace(/\n/g, "<br>");
-    if (parts[1]) document.getElementById('quizContainer').innerHTML = parts[1].replace(/\n/g, "<br>");
+    document.getElementById('resText').innerText = parts[0];
+    document.getElementById('quizContainer').innerText = parts[1] || "Quiz non généré";
 }
 
-function closeAnalysis() { document.getElementById('analysisModal').style.display = "none"; }
+// BOUTIQUE & ADMIN
+function showShop() { document.getElementById('shopModal').style.display = "flex"; }
+function closeModal(id) { document.getElementById(id).style.display = "none"; }
+
+function selectPack(t, p, el) {
+    pack = {t, p};
+    document.querySelectorAll('.pack').forEach(x => x.style.borderColor = "#334155");
+    el.style.borderColor = "#00d2ff";
+    document.getElementById('confirmPay').disabled = false;
+}
+
+function sendPurchase() {
+    const ref = document.getElementById('payRef').value;
+    if(!ref) return alert("Référence manquante");
+    db.requests.push({ id: Date.now(), uname: user.name, uid: user.id, t: pack.t, ref: ref });
+    save(); refreshUI(); closeModal('shopModal');
+    alert("Demande envoyée !");
+}
+
+function showAdmin() {
+    document.getElementById('adminModal').style.display = "flex";
+    const list = document.getElementById('reqList');
+    list.innerHTML = db.requests.map(r => `
+        <div class="pack" style="text-align:left">
+            ${r.uname} - ${r.t} tokens (REF: ${r.ref})
+            <button onclick="approve(${r.id})" class="btn-main" style="padding:5px; margin-top:5px">Valider</button>
+        </div>
+    `).join('');
+}
+
+function approve(id) {
+    const r = db.requests.find(x => x.id === id);
+    const target = db.users.find(u => u.id === r.uid);
+    target.tokens += r.t;
+    db.stockIA -= r.t;
+    db.requests = db.requests.filter(x => x.id !== id);
+    save(); refreshUI(); showAdmin();
+}
