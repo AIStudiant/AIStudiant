@@ -2,96 +2,97 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Studiant Pro - Madagascar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Studiant Pro</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <div id="authScreen" class="auth-overlay">
-        <div class="auth-card">
-            <div class="auth-avatar">🎓</div>
+    <div id="authScreen" class="overlay">
+        <div class="card">
+            <div class="icon-lg">🎓</div>
             <h2>AI Studiant</h2>
-            <p>Entrez votre code (ex: ADMIN ou USER1)</p>
-            <input type="text" id="authInput" placeholder="Code d'accès">
-            <button onclick="handleAuth()" class="login-btn">Se connecter</button>
+            <input type="text" id="authInput" placeholder="Code (ADMIN ou USER1)">
+            <button onclick="handleAuth()" class="btn-main">Se connecter</button>
         </div>
     </div>
 
-    <div id="mainApp" class="app-container" style="display:none;">
-        <header class="main-header">
-            <div class="user-profile">
-                <div class="avatar-circle" id="userAvatar">U</div>
-                <div class="user-info">
-                    <span id="userName" class="name-text">Utilisateur</span>
-                    <div class="token-status">
-                        <span id="userTokenCount">0</span> tokens
-                        <div class="token-bar-bg"><div id="tokenBar"></div></div>
-                        <small id="tokenPercent">100% disponible</small>
-                    </div>
+    <div id="mainApp" style="display:none;">
+        <header>
+            <div class="user-card">
+                <div class="avatar" id="uAvatar">?</div>
+                <div>
+                    <b id="uName">Utilisateur</b><br>
+                    <small id="uTokens">0</small> <span class="gold">tokens</span>
                 </div>
             </div>
-            <div class="header-actions">
-                <button id="goToAdmin" class="icon-btn-admin" style="display:none;">
-                    <i class="fas fa-user-shield"></i>
-                    <span id="notifBadge" class="badge" style="display:none;">!</span>
+            <div class="nav-btns">
+                <button id="adminBtn" class="btn-warn" style="display:none;" onclick="showAdmin()">
+                    <i class="fas fa-shield-alt"></i> <span id="badge" class="badge">0</span>
                 </button>
-                <button onclick="location.reload()" class="icon-btn-logout"><i class="fas fa-power-off"></i></button>
+                <button onclick="location.reload()" class="btn-icon"><i class="fas fa-power-off"></i></button>
             </div>
         </header>
 
-        <div class="action-bar">
-            <span>Gratuit : <b id="dailyFree">0/3</b></span>
-            <button class="buy-tokens-btn" onclick="showShop()"><i class="fas fa-shopping-cart"></i> Acheter Tokens</button>
+        <div class="token-bar-container">
+            <div id="tokenBar" class="token-bar"></div>
+            <small id="tokenLabel">Stock IA: 100%</small>
         </div>
 
-        <main id="subject-list" class="grid-subjects"></main>
+        <div class="actions">
+            <span>Gratuit : <b id="uFree">0/3</b></span>
+            <button onclick="showShop()" class="btn-buy">Acheter</button>
+        </div>
+
+        <div class="search-section">
+            <input type="text" id="search" placeholder="Matière...">
+            <button class="btn-add" onclick="addSubject()">+</button>
+        </div>
+
+        <div id="subjectList" class="grid"></div>
     </div>
 
-    <div id="shopOverlay" class="modal-overlay" style="display:none;">
-        <div class="shop-card">
-            <h3>💰 Recharger mon compte</h3>
-            <div class="package" onclick="selectPack(500000, 1000)">
-                <span>500 000 Tokens</span> <b class="price">1 000 Ar</b>
+    <div id="analysisModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">×</span>
+            <h2 id="modalTitle">Matière</h2>
+            <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Uploader PDF / Word</p>
+                <input type="file" id="fileInput" hidden onchange="handleFileUpload()">
             </div>
-            <div class="package" onclick="selectPack(1000000, 2000)">
-                <span>1 000 000 Tokens</span> <b class="price">2 000 Ar</b>
-            </div>
-            <div class="payment-methods">
-                <select id="paymentProvider">
-                    <option value="MVola">MVola</option>
-                    <option value="Orange Money">Orange Money</option>
-                    <option value="Airtel Money">Airtel Money</option>
-                    <option value="Crypto">Crypto (USDT/BTC)</option>
-                </select>
-                <input type="text" id="transactionID" placeholder="Réf. Transaction (ex: 128394...)">
-            </div>
-            <div class="shop-actions">
-                <button class="btn-cancel" onclick="closeShop()">Annuler</button>
-                <button class="btn-confirm" id="sendRequestBtn" disabled onclick="sendPurchaseRequest()">Envoyer la requête</button>
+            <div id="fileInfo"></div>
+            <button id="analyzeBtn" class="btn-main" style="display:none;" onclick="startAnalysis()">Analyser & Créer Quiz</button>
+            <div id="results" style="display:none;">
+                <div class="summary-box"><h3>Résumé</h3><p id="summaryText"></p></div>
+                <div id="quizBox"></div>
             </div>
         </div>
     </div>
 
-    <div id="adminScreen" class="admin-modal" style="display:none;">
-        <div class="admin-content">
-            <div class="admin-header">
-                <h2>Panel Gestionnaire</h2>
-                <button onclick="hideAdmin()" class="close-admin">×</button>
+    <div id="shopModal" class="overlay" style="display:none;">
+        <div class="card">
+            <h3>Boutique Tokens</h3>
+            <div class="pack" onclick="setPack(500000, 1000)">500k Tokens - 1000Ar</div>
+            <div class="pack" onclick="setPack(1000000, 2000)">1M Tokens - 2000Ar</div>
+            <select id="method"><option>MVola</option><option>Orange Money</option><option>Airtel</option></select>
+            <input type="text" id="refId" placeholder="Réf. Transaction">
+            <button id="sendBtn" class="btn-main" disabled onclick="sendReq()">Envoyer</button>
+            <button onclick="closeShop()" class="btn-text">Annuler</button>
+        </div>
+    </div>
+
+    <div id="adminModal" class="overlay" style="display:none;">
+        <div class="card admin-card">
+            <h3>Panel Admin</h3>
+            <div class="stats">
+                <div>Stock IA: <b id="aStock">1M</b></div>
+                <div>Ventes: <b id="aSales">0</b> Ar</div>
             </div>
-            <div class="admin-cards">
-                <div class="a-card">
-                    <small>Stock Global IA</small>
-                    <h3 id="adminStockDisplay">1M</h3>
-                </div>
-                <div class="a-card">
-                    <small>Ventes Totales</small>
-                    <h3 id="adminSalesDisplay">0 Ar</h3>
-                </div>
-            </div>
-            <h4>Ventes à Valider</h4>
-            <div id="adminRequestList" class="request-container"></div>
+            <h4>Requêtes à valider</h4>
+            <div id="reqList"></div>
+            <button onclick="closeAdmin()" class="btn-main">Fermer</button>
         </div>
     </div>
 
