@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Studiant Pro</title>
+    <title>AI Studiant - Madagascar</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -11,98 +11,92 @@
 
     <div id="authScreen" class="overlay">
         <div class="card">
-            <div class="icon-lg">🎓</div>
-            <h2>AI Studiant</h2>
+            <h2>🎓 AI Studiant</h2>
             <input type="text" id="authInput" placeholder="Code (ADMIN ou USER1)">
-            <button onclick="handleAuth()" class="btn-main">Se connecter</button>
+            <button onclick="handleAuth()" class="btn-main">Entrer</button>
         </div>
     </div>
 
     <div id="mainApp" style="display:none;">
         <header>
-            <div class="user-card">
+            <div class="profile">
                 <div class="avatar" id="uAvatar">?</div>
                 <div>
-                    <b id="uName">Chargement...</b><br>
-                    <small id="uTokens">0</small> <span class="gold">tokens</span>
+                    <b id="uName">Nom</b><br>
+                    <span id="uTokens">0</span> <small>tokens</small>
                 </div>
             </div>
-            <div class="nav-btns">
-                <button id="adminBtn" class="btn-warn" style="display:none;" onclick="showAdmin()">
+            <div class="nav-right">
+                <button id="adminBtn" class="btn-admin" onclick="showAdmin()" style="display:none;">
                     <i class="fas fa-shield-alt"></i> <span id="badge" class="badge">0</span>
                 </button>
                 <button onclick="location.reload()" class="btn-icon"><i class="fas fa-power-off"></i></button>
             </div>
         </header>
 
-        <div class="token-bar-container">
-            <div id="tokenBar" class="token-bar"></div>
+        <div class="stock-container">
+            <div class="progress-bg"><div id="tokenBar" class="progress-fill"></div></div>
             <small id="tokenLabel">Stock IA: 100%</small>
         </div>
 
-        <div id="userActionBar" class="actions">
-            <span>Gratuit : <b id="uFree">0/3</b></span>
-            <button onclick="showShop()" class="btn-buy"><i class="fas fa-shopping-cart"></i> Acheter</button>
-        </div>
-
-        <div class="search-section">
-            <input type="text" id="search" placeholder="Rechercher une matière...">
-            <button class="btn-add" onclick="addSubject()">+</button>
-        </div>
-
-        <div id="subjectList" class="grid"></div>
-    </div>
-
-    <div id="analysisModal" class="modal-full" style="display:none;">
-        <div class="modal-content">
-            <header>
-                <h2 id="modalTitle">Matière</h2>
-                <button onclick="closeAnalysis()" class="close-btn">&times;</button>
-            </header>
-            <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
-                <i class="fas fa-file-pdf"></i>
-                <p>Cliquez pour uploader le cours (PDF/Image)</p>
-                <input type="file" id="fileInput" hidden onchange="handleFileSelect()">
+        <div id="userTools" class="user-tools">
+            <div class="stats-row">
+                <span>Essais gratuits: <b id="uFree">0/3</b></span>
+                <button onclick="showShop()" class="btn-buy"><i class="fas fa-plus"></i> Acheter</button>
             </div>
-            <div id="fileInfo"></div>
-            <button id="analyzeBtn" class="btn-main" style="display:none;" onclick="startAnalysis()">Lancer l'Analyse (-5000 tokens)</button>
-            
-            <div id="results" style="display:none;">
-                <div class="summary-box">
-                    <h3>Résumé de l'IA</h3>
-                    <p id="summaryTxt"></p>
-                </div>
-                <div id="quizArea"></div>
+            <div class="search-bar">
+                <input type="text" placeholder="Rechercher une matière...">
+                <button>+</button>
             </div>
+            <div id="subjectList" class="subjects-grid"></div>
         </div>
     </div>
 
     <div id="shopModal" class="overlay" style="display:none;">
         <div class="card">
-            <h3>Boutique Tokens</h3>
-            <div class="pack" id="p1" onclick="setPack(500000, 1000, 'p1')">500k Tokens - 1000Ar</div>
-            <div class="pack" id="p2" onclick="setPack(1000000, 2000, 'p2')">1M Tokens - 2000Ar</div>
-            <div class="payment-fields">
-                <select id="method"><option>MVola</option><option>Orange Money</option><option>Airtel</option></select>
-                <input type="text" id="refId" placeholder="Réf. Transaction">
-            </div>
-            <button id="sendBtn" class="btn-main" disabled onclick="sendReq()">Envoyer</button>
-            <button onclick="closeShop()" class="btn-text">Annuler</button>
+            <h3>Boutique</h3>
+            <div class="pack" id="pk1" onclick="selectPack(500000, 1000, 'pk1')">500k Tokens - 1000 Ar</div>
+            <div class="pack" id="pk2" onclick="selectPack(1000000, 2000, 'pk2')">1M Tokens - 2000 Ar</div>
+            <select id="method"><option>MVola</option><option>Orange Money</option><option>Airtel</option></select>
+            <input type="text" id="refId" placeholder="Référence du transfert">
+            <button id="sendBtn" class="btn-main" disabled onclick="sendPurchase()">Envoyer</button>
+            <button onclick="closeModal('shopModal')" class="btn-text">Annuler</button>
         </div>
     </div>
 
     <div id="adminModal" class="overlay" style="display:none;">
-        <div class="card admin-card">
-            <div class="admin-header">
-                <h3>Panel Administrateur</h3>
-                <button onclick="closeAdmin()" class="close-btn">&times;</button>
+        <div class="card-large">
+            <div class="header-modal">
+                <h3>Panel Gestionnaire</h3>
+                <button onclick="closeModal('adminModal')">&times;</button>
             </div>
-            <div class="stats">
-                <div class="stat-box">Stock: <b id="aStock">1M</b></div>
-                <div class="stat-box">Ventes: <b id="aSales">0</b> Ar</div>
+            <div class="admin-stats">
+                <div class="stat">Stock IA: <b id="aStock">0</b></div>
+                <div class="stat">Revenus: <b id="aSales">0</b> Ar</div>
             </div>
-            <h4>Demandes de Tokens</h4>
-            <div id="reqList" class="request-list"></div>
+            <h4>Demandes en attente</h4>
+            <div id="reqList" class="req-list"></div>
+        </div>
+    </div>
+
+    <div id="analysisModal" class="overlay-full" style="display:none;">
+        <div class="analysis-content">
+            <div class="header-modal">
+                <h2 id="activeSubject">Matière</h2>
+                <button onclick="closeModal('analysisModal')">&times;</button>
+            </div>
+            <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-file-upload"></i>
+                <p>Uploader votre cours (PDF/Texte)</p>
+                <input type="file" id="fileInput" hidden onchange="onFileSelected()">
+            </div>
+            <div id="fileStatus"></div>
+            <button id="analyzeBtn" class="btn-main" style="display:none;" onclick="runAnalysis()">Analyser & Créer Quiz</button>
+            
+            <div id="analysisResult" class="results" style="display:none;">
+                <div class="box"><h3>📝 Résumé</h3><p id="resText"></p></div>
+                <div class="box"><h3>❓ Quiz</h3><div id="quizContainer"></div></div>
+            </div>
         </div>
     </div>
 
