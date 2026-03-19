@@ -1,20 +1,29 @@
-:root { --bg: #0b0e14; --card: #1a1b25; --blue: #3b82f6; --green: #10b981; --text: #fff; }
-body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding: 10px; }
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.card { background: var(--card); padding: 25px; border-radius: 20px; width: 300px; text-align: center; border: 1px solid #333; }
-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.user-card { display: flex; gap: 10px; align-items: center; text-align: left; }
-.avatar { width: 45px; height: 45px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-.token-bar-container { background: #333; height: 8px; border-radius: 10px; margin: 10px 0; position: relative; }
-.token-bar { height: 100%; background: var(--green); width: 100%; border-radius: 10px; transition: 0.5s; }
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-.subject-card { background: var(--card); padding: 15px; border-radius: 15px; text-align: center; position: relative; }
-.btn-main { background: var(--blue); color: #fff; border: none; padding: 12px; width: 100%; border-radius: 10px; cursor: pointer; margin-top: 10px; }
-.btn-buy { background: var(--green); color: #fff; border: none; padding: 5px 12px; border-radius: 8px; }
-.pack { background: #0b0e14; padding: 10px; margin: 5px 0; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
-.pack.active { border-color: var(--green); background: rgba(16,185,129,0.1); }
-.badge { background: red; padding: 2px 6px; border-radius: 50%; font-size: 10px; vertical-align: top; }
-.upload-zone { border: 2px dashed var(--blue); padding: 20px; border-radius: 15px; margin: 15px 0; cursor: pointer; }
-.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; padding: 20px; overflow-y: auto; }
-.modal-content { background: var(--card); padding: 20px; border-radius: 20px; max-width: 500px; margin: auto; }
-.summary-box { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; text-align: left; margin: 15px 0; }
+:root { --bg: #0b111b; --card: #161f2c; --blue: #3b82f6; --green: #10b981; --warn: #f59e0b; --text: #fff; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; }
+
+/* RECTIFICATION DE L'INTERFACE */
+header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; }
+.avatar { width: 45px; height: 45px; background: linear-gradient(45deg, var(--blue), #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.card { background: var(--card); padding: 25px; border-radius: 20px; width: 320px; text-align: center; border: 1px solid #2d3748; }
+
+/* ELEMENTS SPECIFIQUES */
+.badge { background: #ef4444; color: white; border-radius: 50%; padding: 2px 7px; font-size: 11px; font-weight: bold; position: relative; top: -10px; left: -5px; }
+.token-bar-container { background: #1f2937; height: 8px; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+.token-bar { height: 100%; background: var(--green); width: 100%; transition: 0.8s ease; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+.subject-card { background: var(--card); padding: 20px; border-radius: 18px; text-align: center; cursor: pointer; border: 1px solid #2d3748; transition: 0.3s; }
+.subject-card:hover { transform: translateY(-5px); border-color: var(--blue); }
+
+/* BOUTONS */
+.btn-main { background: var(--blue); color: white; border: none; padding: 12px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: 600; margin-top: 10px; }
+.btn-buy { background: var(--green); color: white; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer; font-size: 13px; }
+.btn-warn { background: var(--warn); color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; }
+.pack { background: #0f172a; padding: 15px; margin: 8px 0; border-radius: 12px; cursor: pointer; border: 1px solid #1e293b; display: flex; justify-content: space-between; }
+.pack.active { border-color: var(--green); background: rgba(16, 185, 129, 0.1); }
+
+/* ANALYSE MODAL */
+.modal-full { position: fixed; inset: 0; background: var(--bg); z-index: 2000; padding: 20px; overflow-y: auto; }
+.upload-area { border: 2px dashed #374151; padding: 40px; border-radius: 20px; text-align: center; margin: 20px 0; cursor: pointer; }
+.upload-area i { font-size: 40px; color: var(--blue); margin-bottom: 10px; }
+.summary-box { background: #1f2937; padding: 20px; border-radius: 15px; text-align: left; margin-top: 20px; border-left: 4px solid var(--blue); }
