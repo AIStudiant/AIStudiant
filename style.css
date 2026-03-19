@@ -1,54 +1,58 @@
 :root {
-    --primary: #00d2ff;
-    --secondary: #3a7bd5;
-    --bg: #0f172a;
-    --card: #1e293b;
-    --text: #f8fafc;
-    --success: #10b981;
+    --primary: #4a90e2;
+    --dark: #2c3e50;
+    --light: #f4f7f6;
 }
 
 body {
-    background: radial-gradient(circle at top, #1e293b, #0f172a);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-}
-
-/* Cartes de matières plus stylées */
-.subjects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light);
+    color: var(--dark);
+    margin: 0;
     padding: 20px;
 }
 
-.subject-card {
-    background: var(--card);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    padding: 25px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+.container {
+    max-width: 800px;
+    margin: 0 auto;
 }
 
-.subject-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--primary);
-    box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
-}
-
-/* Bouton d'analyse moderne */
-.btn-main {
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    border: none;
-    padding: 15px 30px;
+.card {
+    background: white;
+    padding: 2rem;
     border-radius: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
 
-.btn-main:hover {
-    filter: brightness(1.1);
-    box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+textarea {
+    width: 100%;
+    height: 200px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    resize: vertical;
+}
+
+button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.hidden { display: none; }
+
+#loader { color: var(--primary); font-weight: bold; text-align: center; margin: 10px; }
+
+.question-block {
+    background: #f9f9f9;
+    padding: 15px;
+    border-left: 5px solid var(--primary);
+    margin-bottom: 15px;
 }
