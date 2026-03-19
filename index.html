@@ -3,38 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Quiz Generator</title>
+    <title>Espace Éducatif AI</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>🎓 AI Quiz Generator</h1>
-        
-        <div id="login-section" class="card">
-            <h3>Configuration</h3>
-            <input type="password" id="api-key" placeholder="Insérez votre API Key Gemini ici...">
-            <button onclick="saveConfig()">Accéder à l'application</button>
-        </div>
+    <div id="login-screen" class="glass-container">
+        <div class="logo">🚀</div>
+        <h1>Espace Éducatif</h1>
+        <p>Entrez votre clé API Gemini pour commencer</p>
+        <input type="password" id="api-key" placeholder="AI Key (sk-...)">
+        <button onclick="unlockApp()">Activer l'IA</button>
+    </div>
 
-        <div id="app-section" class="card hidden">
-            <textarea id="input-text" placeholder="Collez le contenu de votre document ici..."></textarea>
-            <button id="generate-btn" onclick="processContent()">Générer le Résumé & Quiz</button>
+    <div id="main-app" class="hidden">
+        <header>
+            <div class="profile">
+                <div class="avatar">👨‍🎓</div>
+                <span>Mon Apprentissage</span>
+            </div>
+            <button class="add-btn" onclick="addSubject()">+ Matière</button>
+        </header>
 
-            <div id="loader" class="hidden">Analyse en cours par Gemini...</div>
+        <div id="subject-list">
+            </div>
 
-            <div id="results">
-                <section id="summary-area">
-                    <h2>📝 Résumé Long</h2>
-                    <div id="summary-content"></div>
-                </section>
+        <div id="subject-details" class="modal hidden">
+            <div class="modal-content glass-container">
+                <button class="close-btn" onclick="closeDetails()">✕</button>
+                <h2 id="current-title">Matière</h2>
+                
+                <div class="actions">
+                    <input type="file" id="file-input" accept=".pdf,.txt" hidden onchange="handleFileUpload(event)">
+                    <button class="action-btn upload" onclick="document.getElementById('file-input').click()">
+                        📁 Uploader (PDF/TXT)
+                    </button>
+                </div>
 
-                <section id="quiz-area">
-                    <h2>🧠 Quiz d'auto-évaluation</h2>
-                    <div id="quiz-content"></div>
-                </section>
+                <div id="upload-progress" class="hidden">
+                    <div class="progress-track">
+                        <div id="progress-fill">0%</div>
+                    </div>
+                </div>
+
+                <button id="analyze-btn" class="hidden pulse" onclick="runAIAnalysis()">
+                    ✨ Analyser avec l'IA (100%)
+                </button>
+
+                <div class="results-container">
+                    <div id="doc-list"></div>
+                    <div id="ai-output"></div>
+                </div>
             </div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
