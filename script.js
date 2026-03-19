@@ -1,51 +1,102 @@
 let API_KEY = "";
+let subjects = JSON.parse(localStorage.getItem('edu_data')) || [];
+let currentIdx = null;
+let extractedText = "";
 
-function saveConfig() {
-    const key = document.getElementById('api-key').value;
-    if (key) {
-        API_KEY = key;
-        document.getElementById('login-section').classList.add('hidden');
-        document.getElementById('app-section').classList.remove('hidden');
-    } else {
-        alert("Veuillez entrer une clé API.");
+// 1. Initialisation
+function unlockApp() {
+    API_KEY = document.getElementById('api-key').value;
+    if (API_KEY.length > 10) {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+        renderSubjects();
     }
 }
 
-async function processContent() {
-    const text = document.getElementById('input-text').value;
-    if (!text) return alert("Le texte est vide !");
+// 2. Gestion des matières
+function addSubject() {
+    const name = prompt("Nom de la nouvelle matière :");
+    if (name) {
+        subjects.push({ name, files: [], results: "" });
+        updateStorage();
+    }
+}
 
-    document.getElementById('loader').classList.remove('hidden');
-    
-    const prompt = `Analyse le texte suivant. 
-    1. Fais un résumé long et détaillé. 
-    2. Génère entre 5 et 10 questions QCM simples et pédagogiques. 
-    Chaque question doit avoir 1 bonne réponse et 3 mauvaises réponses plausibles. 
-    Réponds au format JSON: { "resume": "...", "quiz": [ {"question": "...", "options": ["...", "..."], "answer": "..."} ] }
-    Texte : ${text}`;
+function renderSubjects() {
+    const container = document.getElementById('subject-list');
+    container.innerHTML = subjects.map((s, i) => `
+        <div class="subject-card" onclick="openSubject(${i})">
+            <span>📚 ${s.name}</span>
+            <button onclick="deleteSubject(${i}, event)">🗑️</button>
+        </div>
+    `).join('');
+}
+
+function openSubject(i) {
+    currentIdx = i;
+    document.getElementById('subject-details').classList.remove('hidden');
+    document.getElementById('current-title').innerText = subjects[i].name;
+    document.getElementById('ai-output').innerHTML = subjects[i].results || "Aucun résumé.";
+}
+
+// 3. Lecture Fichier + Progression
+async function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const progBar = document.getElementById('progress-fill');
+    document.getElementById('upload-progress').classList.remove('hidden');
+
+    // Simulation visuelle de l'upload
+    for (let p = 0; p <= 100; p += 20) {
+        progBar.style.width = p + "%";
+        progBar.innerText = p + "%";
+        await new Promise(r => setTimeout(r, 200));
+    }
+
+    // Extraction réelle du texte (Simplement support TXT pour cet exemple, PDF nécessite pdf.js)
+    extractedText = await file.text(); 
+    subjects[currentIdx].files.push(file.name);
+    document.getElementById('analyze-btn').classList.remove('hidden');
+    updateStorage();
+}
+
+// 4. Analyse AI (Gemini)
+async function runAIAnalysis() {
+    const outputDiv = document.getElementById('ai-output');
+    outputDiv.innerHTML = "🤖 L'IA analyse votre document...";
+
+    const prompt = `Analyse ce texte. Fais un résumé pédagogique long et crée un quiz de 5 questions QCM. 
+    Formatte le tout proprement en HTML (utilisant h3, p, ul). Texte : ${extractedText}`;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`, {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
-
-        const data = await response.json();
-        const output = data.candidates[0].content.parts[0].text;
         
-        // Extraction du JSON de la réponse (simplifiée pour l'exemple)
-        displayResults(output);
-    } catch (error) {
-        console.error("Erreur:", error);
-        alert("Erreur lors de l'appel à l'API Gemini.");
-    } finally {
-        document.getElementById('loader').classList.add('hidden');
+        const data = await resp.json();
+        const finalHTML = data.candidates[0].content.parts[0].text;
+        
+        subjects[currentIdx].results = finalHTML;
+        outputDiv.innerHTML = finalHTML;
+        updateStorage();
+    } catch (e) {
+        outputDiv.innerHTML = "❌ Erreur API. Vérifiez votre clé.";
     }
 }
 
-function displayResults(rawText) {
-    // Note : En production, on parserait le JSON. Ici on affiche brut pour l'exemple.
-    document.getElementById('summary-content').innerText = "Analyse terminée. Vérifiez la console pour le format structuré.";
-    console.log(rawText);
+function updateStorage() {
+    localStorage.setItem('edu_data', JSON.stringify(subjects));
+    renderSubjects();
+}
+
+function closeDetails() {
+    document.getElementById('subject-details').classList.add('hidden');
+}
+
+function deleteSubject(i, e) {
+    e.stopPropagation();
+    subjects.splice(i, 1);
+    updateStorage();
 }
