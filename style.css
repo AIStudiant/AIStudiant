@@ -1,33 +1,150 @@
-:root {
-    --bg: #020617;
-    --card: #1e293b;
-    --primary: #6366f1;
-    --green: #10b981;
+/* Configuration de base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
-body { background: var(--bg); display: flex; justify-content: center; padding: 20px 0; color: white; font-family: sans-serif; }
+body {
+    background-color: #0b0e14; /* Fond noir profond */
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
 
-.phone-container { width: 380px; height: 800px; background: #000; border-radius: 50px; padding: 12px; border: 5px solid #334155; }
-.phone-screen { width: 100%; height: 100%; background: #0f172a; border-radius: 40px; overflow-y: auto; padding: 25px 20px; scrollbar-width: none; }
+.app-container {
+    width: 100%;
+    max-width: 400px; /* Taille téléphone */
+    height: 90vh;
+    background: radial-gradient(circle at top right, #1a1b25, #0b0e14);
+    border-radius: 30px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 20px rgba(138, 43, 226, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
 
-.status-badge { background: #1e293b; padding: 5px 12px; border-radius: 20px; font-size: 11px; color: var(--green); margin-bottom: 20px; display: inline-block; }
+/* Header & Profil */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
 
-.upload-section { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid #475569; }
-.custom-file-upload { display: block; background: var(--primary); padding: 16px; border-radius: 12px; text-align: center; font-weight: bold; cursor: pointer; margin-bottom: 15px; }
-#file-upload { display: none; }
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-.progress-bar { width: 100%; background: #020617; height: 10px; border-radius: 10px; margin: 10px 0; overflow: hidden; }
-#upload-fill { height: 100%; width: 0%; background: #3b82f6; transition: 0.3s; }
-#ia-fill { height: 100%; width: 0%; background: #f59e0b; transition: 0.3s; }
+.avatar {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(45deg, #8a2be2, #00d2ff);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
 
-button { border: none; padding: 16px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; }
-.btn-blue { background: #3b82f6; color: white; }
-.btn-green { background: var(--green); color: white; margin-top: 20px; }
-.btn-icon { background: none; color: #94a3b8; width: auto; }
+.add-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #a855f7;
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
 
-.summary-chapter { background: #1e293b; border-radius: 15px; padding: 15px; margin-top: 20px; border-left: 4px solid var(--primary); }
-.quiz-card { background: #0f172a; border: 1px solid #334155; border-radius: 15px; padding: 15px; margin-top: 15px; }
-.option { display: block; background: #1e293b; padding: 10px; border-radius: 8px; margin: 5px 0; font-size: 13px; }
-.option.correct { border: 1px solid var(--green); color: #4ade80; }
+/* Barre de recherche */
+.search-bar input {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    margin-bottom: 20px;
+}
 
-.hidden { display: none !important; }
+/* Cartes de Matières */
+#subject-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 18px;
+    border-radius: 18px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.card:hover {
+    background: rgba(255, 255, 255, 0.07);
+    transform: translateY(-2px);
+    border-color: #8a2be2;
+}
+
+.card i {
+    color: #ff4d4d;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+/* Zone Upload & Bouton */
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.upload-area {
+    border: 2px dashed rgba(138, 43, 226, 0.3);
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+    cursor: pointer;
+    color: #cbd5e1;
+    transition: 0.3s;
+}
+
+.upload-area:hover {
+    background: rgba(138, 43, 226, 0.05);
+    border-color: #8a2be2;
+}
+
+.main-btn {
+    background: linear-gradient(90deg, #06b6d4, #3b82f6);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 18px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.main-btn:active {
+    transform: scale(0.98);
+}
