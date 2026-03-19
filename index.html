@@ -2,149 +2,75 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Studiant Pro - Madagascar</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Studiant - Madagascar</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
     <div id="authScreen" class="overlay">
-        <div class="card auth-card">
-            <div class="brand-icon">🎓</div>
-            <h1>AI Studiant</h1>
-            <p>Accès plateforme</p>
-            <input type="text" id="authInput" placeholder="Votre code (ADMIN ou USER1)">
+        <div class="card">
+            <h2>🎓 AI Studiant</h2>
+            <p>Entrez votre code d'accès</p>
+            <input type="text" id="authInput" placeholder="Ex: ADMIN ou USER1">
             <button onclick="handleAuth()" class="btn-main">Se connecter</button>
         </div>
     </div>
 
     <div id="mainApp" style="display:none;">
-        <header class="main-header">
-            <div class="user-profile">
+        <header>
+            <div class="profile">
                 <div class="avatar" id="uAvatar">?</div>
-                <div class="u-info">
-                    <b id="uName">Utilisateur</b>
-                    <div class="token-count">
-                        <span id="uTokens">0</span> <small>tokens</small>
-                    </div>
+                <div>
+                    <b id="uName">Utilisateur</b><br>
+                    <span id="uTokens">0</span> <small>tokens</small>
                 </div>
             </div>
-            <div class="header-actions">
-                <button id="adminBtn" class="btn-admin-toggle" onclick="showAdmin()" style="display:none;">
-                    <i class="fas fa-shield-halved"></i>
-                    <span id="badge" class="badge-notif" style="display:none;">0</span>
-                </button>
-                <button onclick="location.reload()" class="btn-logout">
-                    <i class="fas fa-power-off"></i>
-                </button>
-            </div>
+            <button onclick="location.reload()" class="btn-icon"><i class="fas fa-power-off"></i></button>
         </header>
 
-        <div class="stock-section">
-            <div class="progress-container">
-                <div id="tokenBar" class="progress-bar"></div>
-            </div>
-            <div class="stock-labels">
+        <div class="stock-container">
+            <div class="progress-bg"><div id="tokenBar" class="progress-fill"></div></div>
+            <div class="flex-between">
                 <small id="tokenLabel">Stock IA: 100%</small>
-                <small id="uFreeLabel">Gratuit: <b id="uFree">0/3</b></small>
+                <small>Gratuit: <b id="uFree">0/3</b></small>
             </div>
         </div>
 
-        <div id="userActionBar" class="user-action-bar">
-            <div class="search-box">
-                <input type="text" id="searchSubject" placeholder="Rechercher une matière...">
-                <button class="btn-add-sub"><i class="fas fa-plus"></i></button>
+        <div id="userTools">
+            <div class="search-bar">
+                <input type="text" placeholder="Rechercher une matière...">
+                <button onclick="showShop()" class="btn-buy">Acheter Tokens</button>
             </div>
-            <button onclick="showShop()" class="btn-buy-tokens">
-                <i class="fas fa-cart-shopping"></i> Acheter Tokens
-            </button>
-        </div>
-
-        <main id="subjectList" class="subjects-grid">
-            </main>
-    </div>
-
-    <div id="shopModal" class="overlay" style="display:none;">
-        <div class="card shop-card">
-            <h3>🛒 Boutique de Tokens</h3>
-            <div class="pack-list">
-                <div class="pack" id="pk1" onclick="selectPack(500000, 1000, 'pk1')">
-                    <div class="pk-info"><b>500 000</b> Tokens</div>
-                    <div class="pk-price">1 000 Ar</div>
-                </div>
-                <div class="pack" id="pk2" onclick="selectPack(1000000, 2000, 'pk2')">
-                    <div class="pk-info"><b>1 000 000</b> Tokens</div>
-                    <div class="pk-price">2 000 Ar</div>
-                </div>
-            </div>
-
-            <div class="payment-details">
-                <label>Mode de paiement :</label>
-                <select id="method">
-                    <option value="MVola">MVola</option>
-                    <option value="Orange Money">Orange Money</option>
-                    <option value="Airtel Money">Airtel Money</option>
-                    <option value="Crypto">Crypto (USDT)</option>
-                </select>
-                <input type="text" id="refId" placeholder="N° de Transaction / Référence">
-            </div>
-
-            <div class="modal-footer">
-                <button onclick="closeModal('shopModal')" class="btn-secondary">Annuler</button>
-                <button id="sendBtn" class="btn-main" disabled onclick="sendPurchase()">Confirmer l'envoi</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="adminModal" class="overlay" style="display:none;">
-        <div class="card admin-panel">
-            <div class="modal-header">
-                <h3><i class="fas fa-user-gear"></i> Administration</h3>
-                <button onclick="closeModal('adminModal')" class="close-x">&times;</button>
-            </div>
-            <div class="admin-stats-row">
-                <div class="stat-card">
-                    <small>Ventes totales</small>
-                    <b id="aSales">0 Ar</b>
-                </div>
-                <div class="stat-card">
-                    <small>Stock IA actuel</small>
-                    <b id="aStock">1 000 000</b>
-                </div>
-            </div>
-            <h4>Demandes à valider</h4>
-            <div id="reqList" class="requests-container">
-                </div>
+            <div id="subjectList" class="subjects-grid"></div>
         </div>
     </div>
 
     <div id="analysisModal" class="overlay-full" style="display:none;">
-        <div class="analysis-window">
-            <div class="modal-header">
+        <div class="analysis-content">
+            <div class="header-modal">
                 <h2 id="activeSubject">Matière</h2>
-                <button onclick="closeAnalysis()" class="close-x">&times;</button>
+                <button onclick="closeAnalysis()">&times;</button>
             </div>
-
+            
             <div id="uploadStep">
-                <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
-                    <i class="fas fa-file-arrow-up"></i>
-                    <p>Cliquez pour uploader le cours (PDF, Image, Texte)</p>
+                <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-file-upload"></i>
+                    <p>Cliquez pour uploader (PDF, Image, Texte)</p>
                     <input type="file" id="fileInput" hidden onchange="onFileSelected()">
                 </div>
                 <div id="fileStatus" class="progress-text"></div>
-                <button id="analyzeBtn" class="btn-main" style="display:none;" onclick="runAnalysis()">
-                    Lancer l'Analyse IA (-5000 tokens)
-                </button>
+                <button id="analyzeBtn" class="btn-main" style="display:none;" onclick="runAnalysis()">Lancer l'Analyse IA</button>
             </div>
 
-            <div id="analysisResult" class="results-container" style="display:none;">
-                <div class="result-box summary-box">
-                    <h3><i class="fas fa-align-left"></i> Résumé Structuré</h3>
-                    <div id="resText" class="content-text"></div>
+            <div id="analysisResult" style="display:none;">
+                <div class="result-box">
+                    <h3>📝 Résumé</h3>
+                    <div id="resText"></div>
                 </div>
                 <div class="result-box quiz-box">
-                    <h3><i class="fas fa-list-check"></i> Quiz d'Auto-évaluation</h3>
+                    <h3>❓ Quiz</h3>
                     <div id="quizContainer"></div>
                 </div>
             </div>
